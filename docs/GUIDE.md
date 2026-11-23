@@ -348,7 +348,7 @@ Check the result at 360, 768 and 1440 px wide, in **both languages**, and adjust
 - Numbers: Western digits (0–9) in Arabic too. Format sizes and dates with `Intl` using `ar-IQ-u-nu-latn` / `en-GB`.
 
 ### 10.3 Deploy
-A Render static site (§5.2) on the owner's subdomain `cinemakom.sharon-xa.com`. Render issues the TLS certificate. After the first deploy, check that a missing page gets `404.html` and that `/tv` reaches `/tv/`; add routes in `render.yaml` if not.
+A Render static site (§5.2) on the owner's subdomain `cinemakom.sharon-xa.com` (a DNS-only `CNAME` at Cloudflare: Cloudflare's proxy stays off, so Render issues the certificate and nothing is cached or injected twice). *Checked on the live site, 2026-11-24:* a missing page gets our `404.html` with status 404; `/tv`, `/TV`, `/en/tv` and `/en` redirect (301) to their slash forms; HTTP redirects to HTTPS; pages are brotli-compressed with the `render.yaml` headers; `/_astro/*` is cached for a year and `/version.json` is not; the only outside request is the refresh's one call to `api.github.com`; Lighthouse mobile 99–100 / 100 / 100 / 100 with CLS 0.
 
 ---
 
