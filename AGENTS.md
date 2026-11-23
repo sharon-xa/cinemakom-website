@@ -45,7 +45,7 @@ All of check, test, lint:rtl and build must pass before you finish.
 
 ## Status
 - [x] W0 Project
-- [ ] W1 Release data
+- [x] W1 Release data
 - [ ] W2 Layout, fonts, i18n
 - [ ] W3 Home page (owner reviewed)
 - [ ] W4 Download flow + TV page
