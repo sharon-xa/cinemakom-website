@@ -5,7 +5,7 @@
 <h1 align="center">Cinemakom · سينماكم</h1>
 
 <p align="center">
-  <strong>Cinemana, from a better seat.</strong><br>
+  <strong lang="ar" dir="rtl">سينمانا، بس أحلى.</strong> · <strong>Cinemana, from a better seat.</strong><br>
   The website of Cinemakom, a free, unofficial app for Cinemana on Android, Android TV, Windows and Linux.
 </p>
 
@@ -29,7 +29,7 @@
 
 <img src="public/og-ar.png" alt="سينماكم: سينمانا، بس أحلى" width="100%">
 
-**سينماكم** تطبيق مجاني وغير رسمي لمشاهدة أفلام ومسلسلات سينمانا على الهاتف والتلفاز والحاسوب. هذا المستودع هو موقع التطبيق، ومنه تحمّل أحدث إصدار.
+**سينمانا، بس أحلى.** **سينماكم** تطبيق مجاني وغير رسمي لمشاهدة أفلام ومسلسلات سينمانا على الهاتف والتلفاز والحاسوب. هذا المستودع هو موقع التطبيق، ومنه تحمّل أحدث إصدار.
 
 ### حمّل التطبيق
 
@@ -66,7 +66,7 @@
 
 <img src="public/og-en.png" alt="Cinemakom: Cinemana, from a better seat" width="100%">
 
-**Cinemakom** is a free, unofficial app for watching Cinemana's movies and series on your phone, TV and computer. This repository is its website, where you download the latest version.
+**Cinemana, from a better seat.** **Cinemakom** is a free, unofficial app for watching Cinemana's movies and series on your phone, TV and computer. This repository is its website, where you download the latest version.
 
 ### Download
 
@@ -116,7 +116,10 @@ In CI (Render sets `CI=true`), a failed fetch or a release with no Android files
 ### Principles
 
 - **No device auto-detection.** Visitors pick their device; nothing is reordered, preselected or hidden.
-- **Works without JavaScript.** The device picker is radio inputs and `:has()`; browsers without `:has()` see every panel.
+- **Phones first.** Most visitors are on Android phones: every change is checked at 320, 360 and 412 px in both languages (`scripts/phone-audit.mjs`), and the site works in Chrome 111+ (Android 7 stops at Chrome 119).
+- **Works without JavaScript.** The device picker is radio inputs and `:has()`; browsers without `:has()` see every panel. Every download is a plain link to the file on GitHub, with its size.
+- **A page for TVs.** `/tv/` (and `/en/tv/`) is the short address people type on a remote: one huge focused button, big text, everything reachable with the arrow keys. It stays at that address for good.
+- **Found by search engines and AI assistants.** Titles and descriptions per language, `hreflang`, a sitemap, structured data (`src/lib/seo.ts`), a `robots.txt` that welcomes every crawler and an `/llms.txt` summary, all built from the same dictionaries and release data.
 - **Private and light.** No analytics, cookies, font CDNs or third-party embeds. Fonts are self-hosted WOFF2 subsets. Budgets: home page ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2 KB, CLS 0.
 - **The app's Marquee design**: one dark theme with a single gold accent, the app's own logo SVGs and typefaces.
 - **Right to left done properly.** Logical properties only (`ms`, `pe`, `start`, `end`), enforced by `npm run lint:rtl`. No uppercase or letter-spacing on Arabic. Western digits everywhere.
@@ -147,19 +150,23 @@ scripts/og.sh      # link-preview images public/og-ar.png and public/og-en.png (
 scripts/placeholders.sh  # tiny loading previews of the screenshots, src/data/placeholders.json (needs ImageMagick)
 ```
 
+To check a change on phones, build, run `npm run preview`, start a headless Chrome with `--remote-debugging-port=9333` and run `node scripts/phone-audit.mjs 9333 http://127.0.0.1:4321/ 360 780` (it reports sideways overflow, small tap targets and tiny text).
+
 ### Layout
 
 ```
 src/
-  pages/        index.astro (Arabic), en/, tv/, version.json.ts
-  views/        page bodies shared by both languages
-  components/   Hero, Ticket, Programme, Screens, Download, Faq, Header, Footer…
+  pages/        index.astro (Arabic), en/, tv/ (the TV page), version.json.ts, robots.txt.ts, llms.txt.ts
+  views/        Home and Tv: page bodies shared by both languages
+  components/   Hero, Bulbs, Devices, Ticket, Programme, Screens, Download, FileLink, Faq, Header, Footer…
   i18n/         ar.ts and en.ts: every string on the site, with the same keys
-  lib/          release.ts (release data), targets.ts, format.ts, url.ts
+  lib/          release.ts (release data), targets.ts, seo.ts, qr.ts, bulbs.ts, screens.ts, format.ts, url.ts
+  data/         the saved v1.0.0 release (offline builds) and the screenshots' loading previews
   styles/       global.css (Marquee @theme tokens), fonts.css
   assets/       brand SVGs, font subsets, app screenshots
 fonts-src/      source TTFs and their licences
-test/           vitest tests for release parsing and the dictionaries
+scripts/        fonts.sh, og.sh, placeholders.sh, lint-rtl.mjs, phone-audit.mjs
+test/           vitest tests: release parsing, dictionaries, structured data, QR codes
 docs/GUIDE.md   the full build brief
 AGENTS.md       rules for contributors and AI coding agents
 ```
