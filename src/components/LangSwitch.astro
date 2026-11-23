@@ -1,0 +1,29 @@
+---
+// Links to the same page in the other language. Never redirects by itself.
+import Icon from './Icon.astro';
+import { dict, other, type Locale } from '../i18n';
+import { pageUrl, type Page } from '../lib/url';
+
+interface Props {
+  locale: Locale;
+  page: Page;
+  class?: string;
+}
+const { locale, page, class: cls = '' } = Astro.props;
+const t = dict(locale);
+const target = other(locale);
+---
+
+<a
+  href={pageUrl(target, page)}
+  hreflang={target}
+  lang={target}
+  aria-label={t.nav.switchLabel}
+  class:list={[
+    'inline-flex min-h-11 items-center gap-2 rounded-full border border-velvet-strong px-4 text-label font-semibold text-cream transition-colors hover:border-cream-soft hover:bg-booth-raised',
+    cls,
+  ]}
+>
+  <Icon name="globe" size={18} />
+  <span>{t.nav.switchTo}</span>
+</a>

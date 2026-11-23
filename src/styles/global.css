@@ -29,6 +29,7 @@
   --font-*: initial;
   --font-display: 'Big Shoulders Display', 'Reem Kufi', system-ui, sans-serif;
   --font-ui: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
 
   --radius-*: initial;
   --radius-thumb: 6px;
@@ -64,7 +65,136 @@
   --default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+/* Page gutter 20 / 32 / 48 px at 0 / 600 / 1200, content up to 1200 px. */
+@utility wrap {
+  inline-size: 100%;
+  max-inline-size: calc(75rem + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* "NOW SHOWING": tracked caps in Latin, plain in Arabic (never track Arabic). */
+@utility eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-eyebrow);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-bulb);
+  &:lang(ar) {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.875rem;
+  }
+}
+
+@utility section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-section);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-cream);
+  text-wrap: balance;
+  &:lang(ar) {
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+}
+
+/* The one primary action: a bulb pill. */
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-block-size: 3.25rem;
+  padding-inline: 1.5rem;
+  border-radius: 9999px;
+  background: var(--color-bulb);
+  color: var(--color-on-bulb);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: 1.2;
+  transition: background-color 150ms var(--ease-out);
+  &:hover,
+  &:active {
+    background: var(--color-bulb-bright);
+  }
+}
+
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-block-size: 3rem;
+  padding-inline: 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-velvet-strong);
+  color: var(--color-cream);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out);
+  &:hover {
+    background: var(--color-booth-raised);
+    border-color: var(--color-cream-soft);
+  }
+}
+
+/* Inline links in running text. */
+@utility prose-links {
+  & a {
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-decoration-color: var(--color-bulb);
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  & a:hover {
+    color: var(--color-bulb-bright);
+  }
+  & code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius-thumb);
+    background: var(--color-booth-raised);
+    color: var(--color-cream);
+    unicode-bidi: isolate;
+  }
+  & em {
+    font-style: normal;
+    color: var(--color-cream);
+    font-weight: 600;
+  }
+  & strong {
+    color: var(--color-cream);
+    font-weight: 600;
+  }
+}
+
 @layer base {
+  :root {
+    --gutter: 1.25rem;
+  }
+  @media (min-width: 37.5rem) {
+    :root {
+      --gutter: 2rem;
+    }
+  }
+  @media (min-width: 75rem) {
+    :root {
+      --gutter: 3rem;
+    }
+  }
   html {
     background: var(--color-night);
     color: var(--color-cream);

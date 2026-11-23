@@ -1,0 +1,67 @@
+---
+// A row of marquee bulbs (GUIDE §8.4–8.5). Used at most twice on a page.
+// With `chase`, the bulbs light in sequence once (about 1.2 s), then stay lit,
+// except the `dim` ones. Without motion they are simply lit.
+interface Props {
+  count?: number;
+  dim?: number[];
+  chase?: boolean;
+  /** Light from the far end (for the row under the headline). */
+  reverse?: boolean;
+  class?: string;
+}
+const { count = 64, dim = [], chase = false, reverse = false, class: cls = '' } = Astro.props;
+const step = 1200 / count;
+const bulbs = Array.from({ length: count }, (_, i) => ({
+  dim: dim.includes(i),
+  delay: Math.round((reverse ? count - 1 - i : i) * step),
+}));
+---
+
+<div class:list={['bulbs', chase && 'bulbs-chase', cls]} aria-hidden="true">
+  {
+    bulbs.map((b) => (
+      <span class:list={['bulb', b.dim && 'bulb-dim']} style={chase && !b.dim ? `--d:${b.delay}ms` : undefined} />
+    ))
+  }
+</div>
+
+<style>
+  .bulbs {
+    display: flex;
+    gap: 7px;
+    overflow: hidden;
+    height: 6px;
+    contain: strict;
+    inline-size: 100%;
+  }
+  .bulb {
+    position: relative;
+    flex: none;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 9999px;
+    background: var(--color-velvet-strong);
+  }
+  .bulb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-bulb);
+  }
+  .bulb-dim::after {
+    opacity: 0;
+  }
+  .bulbs-chase .bulb:not(.bulb-dim)::after {
+    animation: bulb-on 180ms var(--ease-out) var(--d, 0ms) both;
+  }
+  @keyframes bulb-on {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>

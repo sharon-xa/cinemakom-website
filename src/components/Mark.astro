@@ -1,0 +1,24 @@
+---
+// The Cinemakom mark, inlined from the app's branding/ SVGs (never redrawn).
+// The detail level follows the app's CinemakomMark.detailFor: full ≥ 48 px,
+// small 24–47 px, tiny < 24 px.
+import full from '../assets/brand/mark-full.svg?raw';
+import small from '../assets/brand/mark-small.svg?raw';
+import tiny from '../assets/brand/mark-tiny.svg?raw';
+
+interface Props {
+  size: number;
+  class?: string;
+  /** Accessible name; omit when the mark sits next to the written name. */
+  label?: string;
+}
+const { size, class: cls = '', label } = Astro.props;
+const src = size >= 48 ? full : size >= 24 ? small : tiny;
+const a11y = label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"';
+const svg = src.replace(
+  '<svg ',
+  `<svg width="${size}" height="${size}" class="${cls}" ${a11y} focusable="false" `,
+);
+---
+
+<Fragment set:html={svg} />

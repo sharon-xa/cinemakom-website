@@ -1,0 +1,63 @@
+---
+import Mark from './Mark.astro';
+import Icon from './Icon.astro';
+import Bulbs from './Bulbs.astro';
+import LangSwitch from './LangSwitch.astro';
+import { dict, fill, type Locale } from '../i18n';
+import { url, type Page } from '../lib/url';
+import { REPO_URL, getRelease } from '../lib/release';
+import { formatDate } from '../lib/format';
+
+interface Props {
+  locale: Locale;
+  page: Page;
+}
+const { locale, page } = Astro.props;
+const t = dict(locale);
+const release = await getRelease();
+const licences = [
+  ['Big Shoulders Display', 'BigShouldersDisplay-OFL.txt'],
+  ['Reem Kufi', 'ReemKufi-OFL.txt'],
+  ['IBM Plex Sans', 'IBMPlexSans-OFL.txt'],
+  ['IBM Plex Sans Arabic', 'IBMPlexSansArabic-OFL.txt'],
+] as const;
+---
+
+<footer class="mt-24 border-t border-velvet bg-nav-bar pb-12 sm:mt-32">
+  <Bulbs count={160} dim={[23, 24, 71, 118]} class="opacity-70" />
+  <div class="wrap grid gap-10 pt-12 md:grid-cols-[auto_1fr_auto] md:gap-12">
+    <Mark size={56} label={t.brand.name} />
+    <div class="max-w-[62ch] space-y-4 text-caption text-dust">
+      <p class="text-body text-cream-soft">{t.footer.disclaimer}</p>
+      <p
+        set:html={fill(t.footer.built, {
+          tag: `<bdi dir="ltr" data-version="tag">${release.tag}</bdi>`,
+          date: `<span data-version="date">${formatDate(release.publishedAt, locale)}</span>`,
+        })}
+      />
+      <p>
+        {t.footer.fonts}
+        <span class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+          <span>{t.footer.licences}:</span>
+          {
+            licences.map(([name, file]) => (
+              <a href={url(`licenses/${file}`)} lang="en" dir="ltr" class="underline decoration-velvet-strong underline-offset-4 hover:text-cream">
+                {name}
+              </a>
+            ))
+          }
+        </span>
+      </p>
+    </div>
+    <div class="flex flex-wrap items-start gap-3 md:flex-col md:items-end">
+      <a
+        href={REPO_URL}
+        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-velvet-strong px-4 text-label font-semibold text-cream transition-colors hover:border-cream-soft hover:bg-booth-raised"
+      >
+        <Icon name="github" size={18} />
+        {t.footer.source}
+      </a>
+      <LangSwitch locale={locale} page={page} />
+    </div>
+  </div>
+</footer>

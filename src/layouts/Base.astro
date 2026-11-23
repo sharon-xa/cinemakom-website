@@ -1,0 +1,66 @@
+---
+// Every page's <html>: language and direction, meta, hreflang, Open Graph,
+// favicons and the one font preload for the hero.
+import '../styles/global.css';
+import { dict, other, LOCALES, type Locale } from '../i18n';
+import { absolute, pageUrl, url, type Page } from '../lib/url';
+import displayAr from '../assets/fonts/reem-kufi-700-arabic.woff2?url';
+import displayEn from '../assets/fonts/big-shoulders-display-latin.woff2?url';
+
+interface Props {
+  locale: Locale;
+  /** The page, for canonical and hreflang. Omit for pages that aren't indexed (404). */
+  page?: Page;
+  title: string;
+  description: string;
+  /** Extra class on <body>. */
+  bodyClass?: string;
+}
+const { locale, page, title, description, bodyClass = '' } = Astro.props;
+const t = dict(locale);
+const canonical = page ? absolute(pageUrl(locale, page)) : undefined;
+const ogImage = absolute(url(`og-${locale}.png`));
+const ogLocale = locale === 'ar' ? 'ar_IQ' : 'en_GB';
+---
+
+<!doctype html>
+<html lang={t.meta.lang} dir={t.meta.dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#15100C" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="preload" href={locale === 'ar' ? displayAr : displayEn} as="font" type="font/woff2" crossorigin />
+    {page ? null : <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    {
+      page &&
+        LOCALES.map((l) => (
+          <link rel="alternate" hreflang={l === 'ar' ? 'ar' : 'en'} href={absolute(pageUrl(l, page))} />
+        ))
+    }
+    {page && <link rel="alternate" hreflang="x-default" href={absolute(pageUrl('ar', page))} />}
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={url('favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={url('apple-touch-icon.png')} />
+    <link rel="sitemap" href={url('sitemap-index.xml')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={t.brand.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogAlt} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={other(locale) === 'ar' ? 'ar_IQ' : 'en_GB'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+  </body>
+</html>

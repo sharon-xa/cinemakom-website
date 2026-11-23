@@ -1,0 +1,57 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import LangSwitch from './LangSwitch.astro';
+import { dict, type Locale } from '../i18n';
+import { pageUrl } from '../lib/url';
+import { REPO_URL } from '../lib/release';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = dict(locale);
+const home = pageUrl(locale, 'home');
+---
+
+<a
+  href="#main"
+  class="fixed start-4 top-3 z-50 -translate-y-24 rounded-full bg-bulb px-5 py-3 font-semibold text-on-bulb focus:translate-y-0"
+>
+  {t.nav.skip}
+</a>
+<header class="border-b border-velvet bg-nav-bar">
+  <div class="wrap flex h-16 items-center gap-3 sm:h-18">
+    <a href={home} aria-label={t.brand.home} class="-ms-1 flex min-h-11 items-center rounded-card p-1">
+      <Logo locale={locale} size={36} />
+    </a>
+    <nav aria-label={t.nav.menu} class="ms-auto flex items-center gap-1 sm:gap-2">
+      <a href={`${home}#download`} class="nav-link max-sm:hidden">{t.nav.download}</a>
+      <a href={`${home}#questions`} class="nav-link max-md:hidden">{t.nav.questions}</a>
+      <a href={REPO_URL} class="nav-link max-md:hidden" aria-label={t.nav.githubLabel}>
+        <Icon name="github" size={18} />
+        <span>{t.nav.github}</span>
+      </a>
+      <LangSwitch locale={locale} page="home" class="ms-1" />
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-block-size: 2.75rem;
+    padding-inline: 0.875rem;
+    border-radius: 9999px;
+    font-size: var(--text-label);
+    font-weight: 500;
+    color: var(--color-dust);
+    transition: color 150ms var(--ease-out), background-color 150ms var(--ease-out);
+  }
+  .nav-link:hover {
+    color: var(--color-cream);
+    background: var(--color-booth-raised);
+  }
+</style>
