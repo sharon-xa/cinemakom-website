@@ -1,7 +1,7 @@
 ---
 // The front of the picture palace (GUIDE §8.5). At the top, the marquee sign:
-// the headline on a booth panel framed by bulbs on all four sides, chasing once
-// round it. Under it, the lede, the one primary button with the version, and
+// the headline on a booth panel framed by bulbs on all four sides. Two chases
+// light them once, from opposite corners, meeting at the other two. Under it, the lede, the one primary button with the version, and
 // the Earthlink notice. Then the screen: the app on a computer and a phone,
 // which bring the page its colour.
 import Bulbs from './Bulbs.astro';
@@ -10,6 +10,7 @@ import Icon, { type IconName } from './Icon.astro';
 import { dict, fill, type Locale } from '../i18n';
 import type { Release } from '../lib/release';
 import { formatDate } from '../lib/format';
+import { chaseCss } from '../lib/bulbs';
 
 interface Props {
   locale: Locale;
@@ -24,12 +25,16 @@ const caption = fill(t.hero.caption, {
 const platformIcons: IconName[] = ['phone', 'tv', 'monitor', 'terminal'];
 ---
 
+<style is:inline set:html={chaseCss()}></style>
+
 <section class="hero wrap pt-6 pb-16 sm:pt-10 sm:pb-24" aria-labelledby="hero-title">
   <div class="sign rounded-panel border border-velvet bg-booth">
-    <Bulbs class="top" count={120} chase span={450} />
-    <Bulbs class="side-end" vertical count={48} chase from={450} span={150} />
-    <Bulbs class="bottom" count={120} chase reverse from={600} span={450} />
-    <Bulbs class="side-start" vertical count={48} chase reverse from={1050} span={150} />
+    <!-- Two chases start together at opposite corners (top start, bottom end)
+         and meet at the other two, one second later. -->
+    <Bulbs class="top" count={100} chase />
+    <Bulbs class="side-start" vertical count={50} chase />
+    <Bulbs class="bottom" count={100} chase from="end" />
+    <Bulbs class="side-end" vertical count={50} chase from="end" />
     <div class="board px-2 py-6 text-center sm:py-9 lg:py-10">
       <p class="eyebrow mb-4 sm:mb-5">{t.hero.eyebrow}</p>
       <h1 id="hero-title" class="headline font-display text-cream">

@@ -1,34 +1,30 @@
 ---
 // A row (or column) of marquee bulbs (GUIDE §8.4–8.5): the hero's sign frame
 // and the footer. As many bulbs as fit are shown, spread evenly so none is cut
-// off; the rest wrap onto a hidden line. With `chase`, they light in sequence
-// once, from `from` ms over `span` ms, then all stay lit. Without motion they
-// are simply lit.
+// off; the rest wrap onto a hidden line.
+//
+// With `chase`, the visible bulbs light one after another, once, from the
+// row's first bulb to its last in exactly --chase (1 s), whatever the row's
+// size (src/lib/bulbs.ts works out how many are visible). `from="end"` starts
+// at the far end (lays the row out reversed), so two rows can run towards
+// each other's corners. Without motion they are simply lit.
 interface Props {
   /** At least as many as can fit; extras stay hidden. */
   count?: number;
   vertical?: boolean;
   chase?: boolean;
-  /** Light from the far end. */
-  reverse?: boolean;
-  from?: number;
-  span?: number;
+  /** Where the chase starts: the row's start (or a column's top), or its end (bottom). */
+  from?: 'start' | 'end';
   class?: string;
 }
-const {
-  count = 64,
-  vertical = false,
-  chase = false,
-  reverse = false,
-  from = 0,
-  span = 1200,
-  class: cls = '',
-} = Astro.props;
-const delays = Array.from({ length: count }, (_, i) => Math.round(from + ((reverse ? count - 1 - i : i) * span) / count));
+const { count = 64, vertical = false, chase = false, from = 'start', class: cls = '' } = Astro.props;
 ---
 
-<div class:list={['bulbs', vertical && 'bulbs-v', chase && 'bulbs-chase', cls]} aria-hidden="true">
-  {delays.map((d) => <span class="bulb" style={chase ? `--d:${d}ms` : undefined} />)}
+<div
+  class:list={['bulbs', vertical && 'bulbs-v', chase && 'bulbs-chase', from === 'end' && 'bulbs-from-end', cls]}
+  aria-hidden="true"
+>
+  {Array.from({ length: count }, (_, i) => <span class="bulb" style={chase ? `--i:${i}` : undefined} />)}
 </div>
 
 <style>
@@ -40,13 +36,21 @@ const delays = Array.from({ length: count }, (_, i) => Math.round(from + ((rever
     overflow: hidden;
     block-size: 6px;
     inline-size: 100%;
-    /* Never size the parent: a column takes the height it is given. */
+    /* Never size the parent: a column takes the height it is given. And each
+       row is a size container, so its bulbs can tell how many fit. */
     contain: strict;
+    container-type: size;
   }
   .bulbs-v {
     flex-direction: column;
     block-size: 100%;
     inline-size: 6px;
+  }
+  .bulbs-from-end {
+    flex-direction: row-reverse;
+  }
+  .bulbs-v.bulbs-from-end {
+    flex-direction: column-reverse;
   }
   .bulb {
     position: relative;
@@ -55,6 +59,9 @@ const delays = Array.from({ length: count }, (_, i) => Math.round(from + ((rever
     block-size: 6px;
     border-radius: 9999px;
     background: var(--color-velvet-strong);
+    /* Visible bulbs; set per size by chaseCss(). A guess for browsers
+       without container queries. */
+    --n: 30;
   }
   .bulb::after {
     content: '';
@@ -64,7 +71,11 @@ const delays = Array.from({ length: count }, (_, i) => Math.round(from + ((rever
     background: var(--color-bulb);
   }
   .bulbs-chase .bulb::after {
-    animation: bulb-on 180ms var(--ease-out) var(--d, 0ms) both;
+    animation-name: bulb-on;
+    animation-duration: 200ms;
+    animation-timing-function: var(--ease-out);
+    animation-fill-mode: both;
+    animation-delay: calc(var(--i, 0) / max(var(--n) - 1, 1) * var(--chase, 1000ms));
   }
   @keyframes bulb-on {
     from {

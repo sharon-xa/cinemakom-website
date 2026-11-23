@@ -108,9 +108,9 @@ const en = {
         alt: 'A movie’s details on a phone: the poster, title, year and genre, Play and Favorite buttons, the story and the cast.',
       },
       {
-        file: 'desktop-player-quality-en',
+        file: 'phone-quality-en',
         caption: 'Quality up to 4K',
-        alt: 'The player on a computer with the quality menu open, from 2160p (4K) down to 240p, with Arabic subtitles on.',
+        alt: 'The quality picker on a phone, from 2160p (4K) down to 360p, with 1080p chosen.',
       },
       {
         file: 'phone-downloads-en',
@@ -128,9 +128,9 @@ const en = {
         alt: 'The Library on a phone, showing Continue watching with the next episode and how much is left.',
       },
       {
-        file: 'desktop-favorites-en',
+        file: 'phone-favorites-en',
         caption: 'Favorites, on your device',
-        alt: 'The Library on a computer, showing three favorite posters.',
+        alt: 'The Library on a phone, showing three favorite posters.',
       },
     ],
   },

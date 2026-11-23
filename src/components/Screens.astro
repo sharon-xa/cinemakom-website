@@ -1,9 +1,13 @@
 ---
-// Screenshots as a film strip: a scroll-snap row on night, with dust captions
-// and a faint row of perforations above and below.
+// Screenshots as a film strip (GUIDE §8.5): phone screens in phone frames, all
+// the same size, in a swipeable scroll-snap row between faint perforations.
+// Built for thumbs: on a phone one screen fills most of the width and the next
+// peeks in, each swipe stops on a screen, and a thin bar shows how far along
+// you are (CSS scroll-driven animation where supported; no JavaScript).
 import { Picture } from 'astro:assets';
 import SectionHead from './SectionHead.astro';
-import { screen, isPhone } from '../lib/screens';
+import Icon from './Icon.astro';
+import { screen } from '../lib/screens';
 import { dict, type Locale } from '../i18n';
 
 interface Props {
@@ -15,37 +19,40 @@ const items = t.screens.items.map((s) => ({ ...s, img: screen(s.file) }));
 ---
 
 <section class="py-16 sm:py-24" aria-labelledby="screens-title">
-  <div class="wrap">
-    <SectionHead id="screens-title" eyebrow={t.screens.eyebrow} title={t.screens.title} class="sm:mb-10" />
+  <div class="wrap flex items-end justify-between gap-6">
+    <SectionHead id="screens-title" eyebrow={t.screens.eyebrow} title={t.screens.title} class="mb-0! sm:mb-0!" />
+    <p class="mb-1 hidden shrink-0 items-center gap-1.5 text-caption text-dust max-sm:inline-flex" aria-hidden="true">
+      {t.screens.hint}
+      <Icon name="chevron" size={16} />
+    </p>
   </div>
-  <div class="strip-frame">
+  <div class="strip-frame mt-8 sm:mt-10">
     <ul class="strip" tabindex="0" aria-label={t.screens.title}>
       {
-        items.map((s) => {
-          const phone = isPhone(s.img);
-          return (
-            <li class:list={['shot', phone ? 'shot-phone' : 'shot-desktop']}>
-              <figure>
+        items.map((s) => (
+          <li class="shot">
+            <figure>
+              <div class="rounded-device border border-velvet bg-booth p-1.5">
                 <Picture
                   src={s.img}
                   alt={s.alt}
                   formats={['avif', 'webp']}
                   fallbackFormat="jpg"
-                  widths={phone ? [200, 300, 420] : [520, 780, 1040, 1300]}
-                  sizes={phone ? '(min-width: 37.5rem) 220px, 190px' : '(min-width: 37.5rem) 780px, 85vw'}
+                  widths={[240, 360, 480, 720]}
+                  sizes="(min-width: 37.5rem) 236px, min(66vw, 17rem)"
                   loading="lazy"
                   decoding="async"
-                  class="block h-auto w-full rounded-card bg-booth"
+                  class="block aspect-[780/1688] h-auto w-full rounded-device-screen bg-screen"
                 />
-                <figcaption class="mt-3 text-caption text-dust">{s.caption}</figcaption>
-              </figure>
-            </li>
-          );
-        })
+              </div>
+              <figcaption class="mt-3 px-1 text-caption text-dust">{s.caption}</figcaption>
+            </figure>
+          </li>
+        ))
       }
     </ul>
+    <div class="progress wrap" aria-hidden="true"><span></span></div>
   </div>
-  <p class="wrap mt-2 text-caption text-dust sm:hidden" aria-hidden="true">{t.screens.hint}</p>
 </section>
 
 <style>
@@ -55,17 +62,32 @@ const items = t.screens.items.map((s) => ({ ...s, img: screen(s.file) }));
   }
   .strip {
     display: flex;
-    align-items: flex-end;
-    gap: 1.25rem;
+    gap: 1rem;
     overflow-x: auto;
+    /* Horizontal swipes stay in the strip; vertical ones scroll the page. */
     overscroll-behavior-inline: contain;
+    touch-action: pan-x pan-y;
     scroll-snap-type: inline mandatory;
     scroll-padding-inline: var(--gutter);
     padding-inline: var(--gutter);
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-velvet-strong) transparent;
+    padding-block-end: 0.25rem;
+    /* Phones swipe; the scrollbar is for mice. */
+    scrollbar-width: none;
   }
-  /* Line the first shot up with the page's content edge on wide screens. */
+  .strip::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 37.5rem) {
+    .strip {
+      gap: 1.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-velvet-strong) transparent;
+    }
+    .strip::-webkit-scrollbar {
+      display: initial;
+    }
+  }
+  /* Line the first screen up with the page's content edge on wide screens. */
   @media (min-width: 75rem) {
     .strip {
       padding-inline: max(var(--gutter), calc((100vw - 75rem) / 2));
@@ -77,20 +99,60 @@ const items = t.screens.items.map((s) => ({ ...s, img: screen(s.file) }));
   }
   .shot {
     flex: none;
+    /* Most of a phone's width, so the next screen peeks in. */
+    inline-size: min(66vw, 17rem);
     scroll-snap-align: start;
-  }
-  .shot-phone {
-    inline-size: 190px;
-  }
-  .shot-desktop {
-    inline-size: min(85vw, 712px);
+    scroll-snap-stop: always;
   }
   @media (min-width: 37.5rem) {
-    .shot-phone {
-      inline-size: 220px;
+    .shot {
+      inline-size: 15rem;
+      scroll-snap-stop: normal;
     }
-    .shot-desktop {
-      inline-size: 780px;
+  }
+
+  /* How far along the strip you are: a bulb bar that grows as you swipe.
+     Only where the browser links animations to scrolling, and not for
+     visitors who asked for less motion. */
+  .progress {
+    display: none;
+  }
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .strip-frame {
+        timeline-scope: --strip;
+      }
+      .strip {
+        scroll-timeline: --strip inline;
+      }
+      .progress {
+        display: block;
+        margin-block-start: 1rem;
+      }
+      .progress span {
+        display: block;
+        block-size: 2px;
+        border-radius: 9999px;
+        background: var(--color-bulb);
+        transform-origin: var(--origin, left);
+        /* Longhands on purpose: the minifier folds animation-timeline into
+           the shorthand otherwise, which browsers reject. */
+        animation-name: strip-progress;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: --strip;
+      }
+      :global([dir='rtl']) .progress span {
+        --origin: right;
+      }
+    }
+  }
+  @keyframes strip-progress {
+    from {
+      transform: scaleX(0.12);
+    }
+    to {
+      transform: scaleX(1);
     }
   }
 </style>
