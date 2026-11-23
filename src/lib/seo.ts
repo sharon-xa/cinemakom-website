@@ -139,7 +139,7 @@ export function llmsTxt(release: Release): string {
 
 > ${en.meta.description} ${en.footer.disclaimer}
 
-Cinemakom is an independent app for Cinemana, Shabakaty's streaming library of movies and series. It is free, needs no account, has no ads and no tracking, and is in Arabic and English. Its source code is public on GitHub. There is no iPhone, iPad, Mac or Apple TV version.
+Cinemakom is an independent app for Cinemana, Shabakaty's streaming library of movies and series. It is free, needs no account, has no ads and no tracking, and is in Arabic and English. It is open source (MIT licence) on GitHub. There is no iPhone, iPad, Mac or Apple TV version.
 
 - Latest version: ${release.version}, released ${formatDate(release.publishedAt, 'en')}
 - Works only on an Earthlink internet connection in Iraq (because Cinemana is only reachable there). Downloaded titles play offline anywhere.

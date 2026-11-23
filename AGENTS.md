@@ -52,6 +52,6 @@ All of check, test, lint:rtl and build must pass before you finish.
 - [x] W1 Release data
 - [x] W2 Layout, fonts, i18n
 - [x] W3 Home page (owner reviewed)
-- [ ] W4 Download flow + TV page
+- [x] W4 Download flow + TV page
 - [ ] W5 Runtime refresh + deploy workflow
 - [ ] W6 Polish and budgets

@@ -1,0 +1,133 @@
+---
+// The TV page (GUIDE §6.5), at /tv/ and /en/tv/: what people type into the
+// Downloader app or a TV browser. Made for 960 × 540 CSS px and a remote:
+// big text, big targets, a thick focus ring, everything in one column so the
+// arrow keys go straight down, and the main button focused on arrival.
+// Keep these addresses working forever.
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import LangSwitch from '../components/LangSwitch.astro';
+import { dict, fill, type Locale } from '../i18n';
+import { getRelease } from '../lib/release';
+import { formatDate, formatSize } from '../lib/format';
+import { jsonLd } from '../lib/seo';
+import { pageUrl } from '../lib/url';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = dict(locale);
+const release = await getRelease();
+const one = release.files['android-armeabi-v7a'];
+const two = release.files['android-arm64-v8a'];
+const caption = fill(t.hero.caption, {
+  version: `<bdi dir="ltr" data-version="version">${release.version}</bdi>`,
+  date: `<span data-version="date">${formatDate(release.publishedAt, locale)}</span>`,
+});
+const structured = jsonLd({
+  locale,
+  page: 'tv',
+  title: t.meta.tvTitle,
+  description: t.meta.tvDescription,
+  release,
+});
+---
+
+<Base locale={locale} page="tv" title={t.meta.tvTitle} description={t.meta.tvDescription} jsonLd={structured} bodyClass="tv">
+  <main id="main" class="mx-auto flex max-w-[52rem] flex-col px-8 py-8 sm:px-12 sm:py-10">
+    <Logo locale={locale} size={56} />
+    <p class="mt-6 text-cream-soft">{t.tvPage.lead}</p>
+
+    {
+      one ? (
+        <a href={one.url} data-target="android-armeabi-v7a" class="tv-main btn-primary mt-8" autofocus>
+          <Icon name="download" size={36} class="shrink-0" />
+          <span>
+            {t.download.buttons.tv1}{' '}
+            <span class="whitespace-nowrap">
+              <span class="opacity-70">·</span> <bdi data-target-size="android-armeabi-v7a">{formatSize(one.bytes, locale)}</bdi>
+            </span>
+          </span>
+        </a>
+      ) : (
+        <p class="mt-8">
+          {t.download.notYet}{' '}
+          <a href={release.allReleasesUrl} class="tv-link">{t.download.notYetLink}</a>
+        </p>
+      )
+    }
+    <p class="mt-3 text-[1.125rem] text-dust" set:html={caption} />
+
+    {
+      two && (
+        <>
+          <a href={two.url} data-target="android-arm64-v8a" class="tv-second btn-secondary mt-8">
+            <Icon name="download" size={28} class="shrink-0" />
+            <span>
+              <span set:html={t.tvPage.option2} />{' '}
+              <span class="whitespace-nowrap">
+                <span class="opacity-70">·</span> <bdi data-target-size="android-arm64-v8a">{formatSize(two.bytes, locale)}</bdi>
+              </span>
+            </span>
+          </a>
+          <p class="mt-3 text-[1.125rem] text-dust">{t.tvPage.option2Note}</p>
+        </>
+      )
+    }
+
+    <p class="mt-8 text-cream-soft">{t.tvPage.after}</p>
+
+    <div class="mt-10 flex flex-col items-start gap-4 border-t border-velvet pt-8">
+      <a href={pageUrl(locale, 'home', 'download')} class="tv-link">{t.tvPage.other}</a>
+      <LangSwitch locale={locale} page="tv" class="tv-lang" />
+      <p class="text-[1.125rem] text-dust">{t.footer.disclaimer}</p>
+    </div>
+  </main>
+</Base>
+
+<style>
+  /* Body text 24 px; nothing smaller than 18. */
+  :global(body.tv) {
+    font-size: 1.5rem;
+    line-height: 1.5;
+  }
+  /* A thick ring: the only way to see where the remote is. */
+  :global(body.tv) :global(:focus-visible) {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+  .tv-main {
+    min-block-size: 5.5rem;
+    padding-inline: 2.5rem;
+    gap: 1rem;
+    font-size: 1.75rem;
+    text-align: center;
+  }
+  .tv-second {
+    min-block-size: 4.5rem;
+    padding-inline: 2rem;
+    gap: 0.875rem;
+    font-size: 1.375rem;
+    text-align: center;
+  }
+  .tv-main :global(em),
+  .tv-second :global(em) {
+    font-style: normal;
+  }
+  .tv-link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 4rem;
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-decoration-color: var(--color-bulb);
+    text-underline-offset: 0.2em;
+  }
+  :global(.tv-lang) {
+    min-block-size: 4rem;
+    padding-inline: 1.5rem;
+    font-size: 1.25rem;
+  }
+</style>

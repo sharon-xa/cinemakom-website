@@ -43,7 +43,7 @@ The owner's brief, in short:
 
 ## 3. Facts about the app (checked 2026-11-23)
 
-- **Repo:** `https://github.com/sharon-xa/cinemakom` (public). No licence file, so don't call it "open source"; "the source code is on GitHub" is fine.
+- **Repo:** `https://github.com/sharon-xa/cinemakom` (public). *Since 2026-11-23 it has an MIT `LICENSE`, so "open source" is accurate.*
 - **Platforms:** Android phones and tablets, **Android TV / Google TV / TV boxes**, **Windows**, **Linux**. Apple platforms (iPhone, iPad, Mac, Apple TV) are **not supported**, by the owner's decision. Never offer or mention Apple downloads, except one FAQ line saying there's no iPhone/Mac version.
 - **Release workflow:** pushing a tag `v*` builds everything and publishes a GitHub Release with these assets (`<tag>` is e.g. `v1.2.0`):
 
@@ -59,7 +59,7 @@ The owner's brief, in short:
   The current release, **v1.0.0**, also carries old `ios-unsigned.ipa` and `macos.dmg` assets from before Apple was dropped. **Ignore every asset you don't recognise.** Match assets by their **suffix** (`-android-arm64-v8a.apk` etc.), never by the full name, because the tag is inside the name.
   Releases whose tag contains `-` (e.g. `v1.3.0-beta1`) are prereleases. GitHub's `releases/latest` endpoint already skips prereleases and drafts: use it, and show only that release.
 - **Android:** needs **Android 7.0 or newer** (minSdk 24). The owner's test TV (a TCL Google TV) runs 32-bit Android, which is why TVs get `armeabi-v7a`.
-- **Linux:** the app plays video through **libmpv**, which must be installed (Debian/Ubuntu: `sudo apt install libmpv2`, Fedora: `sudo dnf install mpv-libs`, Arch: `sudo pacman -S mpv`). Check these package names before you publish them.
+- **Linux:** the app plays video through **libmpv**, which must be installed. *Checked on the distros' package sites, 2026-11-24:* Debian 12+, Ubuntu 24.04+ and Mint 22+ `sudo apt install libmpv2`; Debian 11, Ubuntu 22.04 and Mint 21 `sudo apt install libmpv1`; Fedora `sudo dnf install mpv-libs` (in Fedora's own repos now, no RPM Fusion needed); Arch `sudo pacman -S mpv`.
 - **Windows and Linux builds are unsigned**, so Windows shows SmartScreen ("Windows protected your PC" → *More info* → *Run anyway*).
 - **Earthlink:** browsing and streaming need an Earthlink connection. **Downloaded titles play offline, anywhere.**
 - **What the app does** (safe to claim):

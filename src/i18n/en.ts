@@ -179,6 +179,9 @@ const en = {
     checkNote:
       'If you want to be sure the file arrived whole, compare its SHA-256 checksum with this one.',
     checkCommand: 'On a computer:',
+    checkLinux: 'Linux:',
+    checkWindows: 'Windows (Command Prompt):',
+    recommended: 'Recommended',
     qr: 'On a computer? Scan this with your phone to open this download there.',
     qrAlt: 'QR code that opens the Android download on this site',
     tvAddressLead: 'On the TV, type this address:',
@@ -214,7 +217,13 @@ const en = {
       linuxRun: 'Extract the download and start the app:',
       linuxDesktop: 'Optional: add Cinemakom to your app menu.',
       linuxDesktopNote: 'This keeps the app in <code dir="ltr">~/.local/opt/cinemakom</code> and adds its icon and menu entry.',
-      distros: { debian: 'Debian, Ubuntu, Mint', fedora: 'Fedora', arch: 'Arch, Manjaro' },
+      linuxUpdate: 'Close Cinemakom, then run the extract command again with the new file: it replaces the old version. Your favorites and history stay.',
+      distros: {
+        debianNew: 'Debian 12+, Ubuntu 24.04+, Mint 22+',
+        debianOld: 'Debian 11, Ubuntu 22.04, Mint 21',
+        fedora: 'Fedora',
+        arch: 'Arch, Manjaro',
+      },
     },
   },
   faq: {

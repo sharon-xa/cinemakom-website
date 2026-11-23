@@ -1,9 +1,23 @@
 ---
-// The box office (GUIDE §6). The full device picker arrives in W4.
+// The box office (GUIDE §6): pick the device, then download its file.
+//
+// Step 1 is a radio group of four ticket cards; step 2 is one panel per
+// device. No JavaScript: CSS :has() shows the panel of the checked card.
+// Without :has() (old TV browsers) the cards are hidden and every panel is
+// shown, one under the other, each with its own heading.
+//
+// Nothing is preselected by user agent. Until the visitor picks, a hidden
+// "no choice yet" radio is checked: the phone panel shows, or the device a
+// link points at (#android, #tv, #windows, #linux are the panels' ids). As
+// soon as the visitor picks a card, their choice wins over the link.
 import SectionHead from './SectionHead.astro';
-import Icon from './Icon.astro';
-import { dict, type Locale } from '../i18n';
-import type { Release } from '../lib/release';
+import Icon, { type IconName } from './Icon.astro';
+import FileLink from './FileLink.astro';
+import { dict, fill, type Locale } from '../i18n';
+import { ISSUES_URL, type Release, type Target } from '../lib/release';
+import { formatDate } from '../lib/format';
+import { absolute, pageUrl, tvAddress } from '../lib/url';
+import { qrSvg } from '../lib/qr';
 
 interface Props {
   locale: Locale;
@@ -11,16 +25,545 @@ interface Props {
 }
 const { locale, release } = Astro.props;
 const t = dict(locale);
+const d = t.download;
+const s = d.steps;
+
+type Device = 'phone' | 'tv' | 'windows' | 'linux';
+const devices: { key: Device; id: string; icon: IconName; targets: Target[] }[] = [
+  { key: 'phone', id: 'android', icon: 'phone', targets: ['android-arm64-v8a', 'android-armeabi-v7a', 'android-x86_64'] },
+  { key: 'tv', id: 'tv', icon: 'tv', targets: ['android-armeabi-v7a', 'android-arm64-v8a'] },
+  { key: 'windows', id: 'windows', icon: 'monitor', targets: ['windows-x64'] },
+  { key: 'linux', id: 'linux', icon: 'terminal', targets: ['linux-x64'] },
+];
+
+const version = fill(t.hero.caption, {
+  version: `<bdi dir="ltr" data-version="version">${release.version}</bdi>`,
+  date: `<span data-version="date">${formatDate(release.publishedAt, locale)}</span>`,
+});
+// The TV address breaks only before its path, never inside the host name.
+const [tvHost, ...tvPath] = tvAddress().split('/');
+const qr = await qrSvg(absolute(pageUrl(locale, 'home', 'android')), d.qrAlt);
+const windowsFile = release.files['windows-x64']?.name ?? 'cinemakom-<version>-windows-x64.zip';
+const linuxFile = release.files['linux-x64']?.name ?? 'cinemakom-<version>-linux-x64.tar.gz';
+const desktopFile = 'io.github.sharon_xa.cinemakom.desktop';
+const linuxRun = [`mkdir -p ~/.local/opt`, `tar -xzf ${linuxFile} -C ~/.local/opt`, `~/.local/opt/cinemakom/cinemakom`].join('\n');
+const linuxDesktop = [
+  `mkdir -p ~/.local/share/applications ~/.local/share/icons`,
+  `cp -r ~/.local/opt/cinemakom/packaging/icons/hicolor ~/.local/share/icons/`,
+  `sed "s|^Exec=.*|Exec=$HOME/.local/opt/cinemakom/cinemakom|" \\`,
+  `  ~/.local/opt/cinemakom/packaging/${desktopFile} \\`,
+  `  > ~/.local/share/applications/${desktopFile}`,
+].join('\n');
+const distros: [string, string][] = [
+  [s.distros.debianNew, 'sudo apt install libmpv2'],
+  [s.distros.debianOld, 'sudo apt install libmpv1'],
+  [s.distros.fedora, 'sudo dnf install mpv-libs'],
+  [s.distros.arch, 'sudo pacman -S mpv'],
+];
+const sums = (targets: Target[]) =>
+  targets.flatMap((tg) => {
+    const f = release.files[tg];
+    return f?.sha256 ? [{ name: f.name, sha: f.sha256, target: tg }] : [];
+  });
 ---
 
 <section id="download" class="wrap py-16 sm:py-24" aria-labelledby="download-title">
-  <SectionHead id="download-title" eyebrow={t.download.eyebrow} title={t.download.title}>
-    <p class="mt-5 text-title font-semibold text-cream">{t.download.pick}</p>
-    <p class="mt-1 text-cream-soft">{t.download.pickNote}</p>
-  </SectionHead>
-  {import.meta.env.DEV || release.source === 'sample' ? <p class="mb-6 text-caption text-ember">{t.download.sample}</p> : null}
-  <a href={release.allReleasesUrl} class="btn-secondary">
-    <Icon name="github" size={18} />
-    {t.download.allVersions}
-  </a>
+  <SectionHead id="download-title" eyebrow={d.eyebrow} title={d.title} class="mb-6! sm:mb-8!" />
+  <p class="max-w-[52ch] text-cream-soft">{d.pickNote}</p>
+  {import.meta.env.DEV || release.source === 'sample' ? <p class="mt-3 text-caption text-ember">{d.sample}</p> : null}
+
+  <div class="picker mt-8 sm:mt-10">
+    <fieldset class="cards">
+      <legend class="mb-4 text-title font-semibold text-cream">
+        <span class="text-dust">{d.stepDevice} ·</span>{' '}{d.pick}
+      </legend>
+      <input type="radio" name="device" id="pick-auto" value="" checked hidden />
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          devices.map((dev) => (
+            <label class:list={['card', `card-${dev.id}`]} for={`pick-${dev.id}`}>
+              <input type="radio" name="device" id={`pick-${dev.id}`} value={dev.id} class="sr-only" />
+              <Icon name={dev.icon} size={28} class="shrink-0 text-cream-soft" />
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold text-cream">{d.devices[dev.key].name}</span>
+                <span class="mt-0.5 block text-caption text-dust">{d.devices[dev.key].note}</span>
+              </span>
+              <span class="dot" aria-hidden="true" />
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <p class="step2 mt-8 mb-4 text-title font-semibold text-cream sm:mt-10">
+      <span class="text-dust">{d.stepFile} ·</span>{' '}<span class="text-caption font-normal text-dust" set:html={version} />
+    </p>
+
+    <div class="panels">
+      {/* ---------- Android phone or tablet ---------- */}
+      <article id="android" class="panel panel-android" aria-labelledby="h-android">
+        <div class="lg:flex lg:items-start lg:justify-between lg:gap-10">
+          <div class="min-w-0 flex-1">
+            <h3 id="h-android" class="panel-title"><Icon name="phone" size={24} />{d.devices.phone.name}</h3>
+            <FileLink locale={locale} release={release} target="android-arm64-v8a" label={d.buttons.phone} primary />
+            <details class="more">
+              <summary>{d.other.title}<Icon name="chevronDown" size={20} class="chev" /></summary>
+              <div class="space-y-6 pb-2">
+                <div>
+                  <p class="font-semibold text-cream">{d.other.armv7.title}</p>
+                  <p class="mb-3 text-caption text-cream-soft" set:html={d.other.armv7.why} />
+                  <FileLink locale={locale} release={release} target="android-armeabi-v7a" label={d.other.armv7.title} />
+                </div>
+                <div>
+                  <p class="font-semibold text-cream">{d.other.x86.title}</p>
+                  <p class="mb-3 text-caption text-cream-soft">{d.other.x86.why}</p>
+                  <FileLink locale={locale} release={release} target="android-x86_64" label={d.other.x86.title} />
+                </div>
+              </div>
+            </details>
+            <details class="more" open>
+              <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+              <ol class="steps">{s.android.map((x) => <li set:html={x} />)}</ol>
+            </details>
+            <details class="more">
+              <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+              <ul class="notes">{s.androidUpdate.map((x) => <li set:html={x} />)}</ul>
+            </details>
+            <details class="more">
+              <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
+              <div class="check">
+                <p>{d.checkNote}</p>
+                {
+                  sums(devices[0]!.targets).map((x) => (
+                    <p class="sum">
+                      <code dir="ltr" class="name">{x.name}</code>
+                      <code dir="ltr" data-target-sha={x.target}>{x.sha}</code>
+                    </p>
+                  ))
+                }
+              </div>
+            </details>
+          </div>
+          <figure class="qr mt-8 hidden shrink-0 lg:mt-0 lg:block">
+            <div class="rounded-card bg-cream p-3 text-night" set:html={qr} />
+            <figcaption class="mt-3 text-caption text-dust">{d.qr}</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      {/* ---------- Android TV ---------- */}
+      <article id="tv" class="panel panel-tv" aria-labelledby="h-tv">
+        <h3 id="h-tv" class="panel-title"><Icon name="tv" size={24} />{d.devices.tv.name}</h3>
+        <div class="grid gap-8 md:grid-cols-2">
+          <div>
+            <p class="mb-1 text-label font-semibold text-bulb">{d.tv.option1}</p>
+            <p class="mb-4 text-caption text-cream-soft">{d.tv.option1Why}</p>
+            <FileLink locale={locale} release={release} target="android-armeabi-v7a" label={d.buttons.tv1} primary />
+          </div>
+          <div>
+            <p class="mb-1 text-label font-semibold text-cream">{d.tv.option2}</p>
+            <p class="mb-4 text-caption text-cream-soft" set:html={d.tv.option2Why} />
+            <FileLink locale={locale} release={release} target="android-arm64-v8a" label={d.buttons.tv2} />
+          </div>
+        </div>
+        <div class="mt-8 rounded-card border border-velvet bg-night px-4 py-4 sm:px-5">
+          <p class="text-caption text-dust">{d.tvAddressLead}</p>
+          <p class="tv-address mt-1 font-semibold text-cream">
+            <bdi dir="ltr"><span class="whitespace-nowrap">{tvHost}</span><wbr /><span class="whitespace-nowrap">/{tvPath.join('/')}</span></bdi>
+          </p>
+        </div>
+        <details class="more" open>
+          <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <p class="mb-3 text-cream-soft">{s.tvWays}</p>
+          <ol class="steps">{s.tv.map((x) => <li set:html={x} />)}</ol>
+          <ul class="notes mt-4">{s.tvAfter.map((x) => <li set:html={x} />)}</ul>
+        </details>
+        <details class="more">
+          <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <ul class="notes">{s.androidUpdate.map((x) => <li set:html={x} />)}</ul>
+        </details>
+        <details class="more">
+          <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <div class="check">
+            <p>{d.checkNote}</p>
+            {
+              sums(devices[1]!.targets).map((x) => (
+                <p class="sum">
+                  <code dir="ltr" class="name">{x.name}</code>
+                  <code dir="ltr" data-target-sha={x.target}>{x.sha}</code>
+                </p>
+              ))
+            }
+          </div>
+        </details>
+      </article>
+
+      {/* ---------- Windows ---------- */}
+      <article id="windows" class="panel panel-windows" aria-labelledby="h-windows">
+        <h3 id="h-windows" class="panel-title"><Icon name="monitor" size={24} />{d.devices.windows.name}</h3>
+        <FileLink locale={locale} release={release} target="windows-x64" label={d.buttons.windows} primary />
+        <details class="more" open>
+          <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <ol class="steps">{s.windows.map((x) => <li set:html={x} />)}</ol>
+        </details>
+        <details class="more">
+          <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <p class="pb-2 text-cream-soft">{s.windowsUpdate}</p>
+        </details>
+        <details class="more">
+          <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <div class="check">
+            <p>{d.checkNote}</p>
+            {
+              sums(devices[2]!.targets).map((x) => (
+                <p class="sum">
+                  <code dir="ltr" class="name">{x.name}</code>
+                  <code dir="ltr" data-target-sha={x.target}>{x.sha}</code>
+                </p>
+              ))
+            }
+            <p class="mt-2">{d.checkWindows}</p>
+            <pre dir="ltr"><code>certutil -hashfile {windowsFile} SHA256</code></pre>
+          </div>
+        </details>
+      </article>
+
+      {/* ---------- Linux ---------- */}
+      <article id="linux" class="panel panel-linux" aria-labelledby="h-linux">
+        <h3 id="h-linux" class="panel-title"><Icon name="terminal" size={24} />{d.devices.linux.name}</h3>
+        <FileLink locale={locale} release={release} target="linux-x64" label={d.buttons.linux} primary />
+        <details class="more" open>
+          <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <ol class="steps">
+            <li>
+              {s.linuxDeps}
+              <table class="distros">
+                <tbody>
+                  {
+                    distros.map(([name, cmd]) => (
+                      <tr>
+                        <th scope="row">{name}</th>
+                        <td>
+                          <code dir="ltr">{cmd}</code>
+                        </td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </li>
+            <li>
+              {s.linuxRun}
+              <pre dir="ltr"><code>{linuxRun}</code></pre>
+            </li>
+            <li>
+              {s.linuxDesktop} <span set:html={s.linuxDesktopNote} />
+              <pre dir="ltr"><code>{linuxDesktop}</code></pre>
+            </li>
+          </ol>
+        </details>
+        <details class="more">
+          <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <p class="pb-2 text-cream-soft">{s.linuxUpdate}</p>
+        </details>
+        <details class="more">
+          <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
+          <div class="check">
+            <p>{d.checkNote}</p>
+            {
+              sums(devices[3]!.targets).map((x) => (
+                <p class="sum">
+                  <code dir="ltr" class="name">{x.name}</code>
+                  <code dir="ltr" data-target-sha={x.target}>{x.sha}</code>
+                </p>
+              ))
+            }
+            <p class="mt-2">{d.checkLinux}</p>
+            <pre dir="ltr"><code>sha256sum {linuxFile}</code></pre>
+          </div>
+        </details>
+      </article>
+    </div>
+  </div>
+
+  <p class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-caption text-dust">
+    <a href={release.allReleasesUrl} class="btn-secondary">
+      <Icon name="github" size={18} />
+      {d.allVersions}
+    </a>
+    <a
+      href={ISSUES_URL}
+      class="inline-flex min-h-11 items-center underline decoration-velvet-strong underline-offset-4 hover:text-cream"
+    >
+      {t.faq.items[t.faq.items.length - 1]!.q}
+    </a>
+  </p>
 </section>
+
+<style>
+  /* ---- Step 1: the device cards (only where :has() can drive them) ---- */
+  .cards,
+  .step2 {
+    display: none;
+    min-inline-size: 0;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-block-size: 5rem;
+    padding: 1rem 1.125rem;
+    border: 2px solid var(--color-velvet);
+    border-radius: var(--radius-card);
+    background: var(--color-booth);
+    cursor: pointer;
+    transition:
+      border-color 150ms var(--ease-out),
+      background-color 150ms var(--ease-out);
+  }
+  .card:hover,
+  .card:active {
+    background: var(--color-booth-raised);
+  }
+  .dot {
+    position: relative;
+    flex: none;
+    inline-size: 1.375rem;
+    block-size: 1.375rem;
+    border: 2px solid var(--color-velvet-strong);
+    border-radius: 9999px;
+  }
+  .dot::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: inherit;
+    background: var(--color-bulb);
+    opacity: 0;
+    transition: opacity 150ms var(--ease-out);
+  }
+  .card:has(input:focus-visible) {
+    outline: 2px solid var(--color-bulb);
+    outline-offset: 2px;
+  }
+
+  /* ---- Step 2: the panels ---- */
+  .panels {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .panel {
+    padding: 1.25rem;
+    border: 1px solid var(--color-velvet);
+    border-radius: var(--radius-panel);
+    background: var(--color-booth);
+    /* Room for the pinned header when a link jumps here. */
+    scroll-margin-block-start: 5.5rem;
+  }
+  @media (min-width: 37.5rem) {
+    .panel {
+      padding: 2rem;
+    }
+  }
+  .panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-block-end: 1.25rem;
+    font-size: var(--text-title);
+    font-weight: 600;
+    color: var(--color-cream);
+  }
+  .panel-title :global(svg) {
+    flex: none;
+    color: var(--color-cream-soft);
+  }
+
+  .more {
+    margin-block-start: 1.5rem;
+    border-block-start: 1px solid var(--color-velvet);
+  }
+  .more summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-block-size: 3.5rem;
+    font-weight: 600;
+    color: var(--color-cream);
+    cursor: pointer;
+    list-style: none;
+  }
+  .more summary::-webkit-details-marker {
+    display: none;
+  }
+  .more :global(.chev) {
+    flex: none;
+    color: var(--color-dust);
+    transition: transform 150ms var(--ease-out);
+  }
+  .more[open] :global(.chev) {
+    transform: rotate(180deg);
+  }
+
+  .steps,
+  .notes {
+    display: grid;
+    gap: 0.75rem;
+    padding-block-end: 0.5rem;
+    padding-inline-start: 1.5rem;
+    color: var(--color-cream-soft);
+    line-height: 1.6;
+  }
+  /* Grid items default to their content's width: let long commands scroll
+     inside their box instead of widening the page. */
+  .steps > li,
+  .notes > li,
+  .panel {
+    min-inline-size: 0;
+  }
+  .steps {
+    list-style: decimal;
+  }
+  .notes {
+    list-style: disc;
+  }
+  .steps ::marker,
+  .notes ::marker {
+    color: var(--color-dust);
+  }
+  .steps :global(strong),
+  .notes :global(strong),
+  .steps :global(em),
+  .notes :global(em) {
+    color: var(--color-cream);
+    font-style: normal;
+    font-weight: 600;
+  }
+  /* Messages quoted from the screen (App not installed…): bold, never italic
+     (Arabic has no italics). */
+  .panel :global(em) {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--color-cream);
+  }
+  .panel :global(code) {
+    font-family: var(--font-mono);
+    /* A little smaller than the text around it, never under 13 px. */
+    font-size: max(0.875em, 0.8125rem);
+    unicode-bidi: isolate;
+  }
+  .panel :global(li code),
+  .panel :global(td code) {
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius-thumb);
+    background: var(--color-booth-raised);
+    color: var(--color-cream);
+  }
+  pre {
+    margin-block: 0.75rem 0.25rem;
+    padding: 0.875rem 1rem;
+    overflow-x: auto;
+    border-radius: var(--radius-card);
+    background: var(--color-night);
+    color: var(--color-cream);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    text-align: start;
+    direction: ltr;
+  }
+  .panel pre :global(code) {
+    padding: 0;
+    background: none;
+  }
+  .distros {
+    margin-block: 0.75rem 0.25rem;
+    border-collapse: collapse;
+    font-size: var(--text-caption);
+  }
+  .distros th,
+  .distros td {
+    padding-block: 0.375rem;
+    text-align: start;
+    vertical-align: top;
+  }
+  .distros th {
+    padding-inline-end: 1rem;
+    font-weight: 500;
+    color: var(--color-dust);
+  }
+  @media (max-width: 37.4375rem) {
+    .distros tr {
+      display: grid;
+    }
+    .distros th {
+      padding-block-end: 0;
+    }
+  }
+  .check {
+    display: grid;
+    gap: 0.5rem;
+    padding-block-end: 0.75rem;
+    color: var(--color-cream-soft);
+    font-size: var(--text-caption);
+  }
+  .sum {
+    display: grid;
+    gap: 0.125rem;
+  }
+  .sum code {
+    overflow-wrap: anywhere;
+    color: var(--color-cream);
+  }
+  .sum .name {
+    color: var(--color-dust);
+  }
+  .qr {
+    inline-size: 11rem;
+  }
+  /* The address people type on a remote: as big as fits on one line. */
+  .tv-address {
+    font-size: clamp(1.0625rem, 5.2vw, 2rem);
+    line-height: 1.3;
+    text-align: start;
+  }
+
+  /* ---- The picker, where :has() works ---- */
+  @supports selector(:has(*)) {
+    .cards,
+    .step2 {
+      display: block;
+    }
+    .panel {
+      display: none;
+    }
+    /* The visitor's choice; with no choice yet, the device a link points
+       at, or else the phone. */
+    .picker:has(#pick-android:checked) .panel-android,
+    .picker:has(#pick-tv:checked) .panel-tv,
+    .picker:has(#pick-windows:checked) .panel-windows,
+    .picker:has(#pick-linux:checked) .panel-linux,
+    .picker:has(#pick-auto:checked):has(#tv:target) .panel-tv,
+    .picker:has(#pick-auto:checked):has(#windows:target) .panel-windows,
+    .picker:has(#pick-auto:checked):has(#linux:target) .panel-linux,
+    .picker:has(#pick-auto:checked):not(:has(#tv:target, #windows:target, #linux:target)) .panel-android {
+      display: block;
+    }
+    /* The card of the panel shown. */
+    .card:has(input:checked),
+    .picker:has(#pick-auto:checked):has(#tv:target) .card-tv,
+    .picker:has(#pick-auto:checked):has(#windows:target) .card-windows,
+    .picker:has(#pick-auto:checked):has(#linux:target) .card-linux,
+    .picker:has(#pick-auto:checked):not(:has(#tv:target, #windows:target, #linux:target)) .card-android {
+      --on: 1;
+      border-color: var(--color-bulb);
+      background: var(--color-booth-raised);
+    }
+    .card .dot {
+      border-color: color-mix(in srgb, var(--color-bulb) calc(var(--on, 0) * 100%), var(--color-velvet-strong));
+    }
+    .card .dot::after {
+      opacity: var(--on, 0);
+    }
+  }
+</style>

@@ -51,6 +51,8 @@ const audit = `(() => {
   for (const el of document.querySelectorAll('a, button, summary, input, label, [tabindex]')) {
     const r = el.getBoundingClientRect();
     if (!r.width) continue;
+    // A visually hidden input inside its label: the label is the target.
+    if (el.matches('input.sr-only') && el.closest('label')) continue;
     const item = { text: (el.textContent || el.getAttribute('aria-label') || '').trim().replace(/\\s+/g, ' ').slice(0, 40), w: Math.round(r.width), h: Math.round(r.height) };
     if (r.height < 44 || r.width < 44) {
       const inline = getComputedStyle(el).display === 'inline' && el.closest('p, li, dd');

@@ -1,0 +1,59 @@
+---
+// One download (GUIDE §6.1): a plain link to the release file that says what
+// it gives and how big it is, with the exact file name in small type. When
+// the release lacks the file: a short note and the link to every version.
+//
+// The data-target* attributes are the hooks for the runtime refresh (W5): it
+// swaps href, size and name when GitHub has a newer release than this build.
+import Icon from './Icon.astro';
+import { dict, type Locale } from '../i18n';
+import { formatSize } from '../lib/format';
+import type { Release, Target } from '../lib/release';
+
+interface Props {
+  locale: Locale;
+  release: Release;
+  target: Target;
+  label: string;
+  primary?: boolean;
+  /** Extra classes on the button. */
+  class?: string;
+}
+const { locale, release, target, label, primary = false, class: cls = '' } = Astro.props;
+const t = dict(locale);
+const file = release.files[target];
+---
+
+{
+  file ? (
+    <div>
+      <a
+        href={file.url}
+        data-target={target}
+        class:list={[
+          primary ? 'btn-primary min-h-14 px-7 text-[1.0625rem]' : 'btn-secondary',
+          'w-full max-w-full text-center sm:w-auto',
+          cls,
+        ]}
+      >
+        <Icon name="download" size={20} class="shrink-0" />
+        <span>
+          {label}{' '}
+          <span class="whitespace-nowrap">
+            <span class="opacity-70">·</span> <bdi data-target-size={target}>{formatSize(file.bytes, locale)}</bdi>
+          </span>
+        </span>
+      </a>
+      <p class="mt-2 text-caption break-all text-dust">
+        {t.download.tech}: <code dir="ltr" class="font-mono text-[0.8125rem]" data-target-name={target}>{file.name}</code>
+      </p>
+    </div>
+  ) : (
+    <p class="text-cream-soft">
+      {t.download.notYet}{' '}
+      <a href={release.allReleasesUrl} class="text-cream underline decoration-bulb underline-offset-4">
+        {t.download.notYetLink}
+      </a>
+    </p>
+  )
+}
