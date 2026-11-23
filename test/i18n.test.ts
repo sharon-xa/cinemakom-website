@@ -59,10 +59,14 @@ describe('fill', () => {
 describe('screenshots', () => {
   it('every screenshot has a loading preview (scripts/placeholders.sh)', async () => {
     const { readdirSync } = await import('node:fs');
-    const placeholders = (await import('../src/data/placeholders.json')).default as Record<string, string>;
+    const placeholders = (await import('../src/data/placeholders.json')).default as Record<string, { w: number; h: number; webp: string }>;
     const files = readdirSync('src/assets/screens').filter((f) => f.endsWith('.png')).map((f) => f.replace(/\.png$/, ''));
     expect(Object.keys(placeholders).sort()).toEqual(files.sort());
-    for (const v of Object.values(placeholders)) expect(v).toMatch(/^data:image\/webp;base64,/);
+    for (const v of Object.values(placeholders)) {
+      expect(v.w).toBeGreaterThan(0);
+      expect(v.h).toBeGreaterThan(0);
+      expect(v.webp).toMatch(/^UklGR/); // RIFF: a WebP file
+    }
   });
 
   it('every strip item names a screenshot that exists', async () => {

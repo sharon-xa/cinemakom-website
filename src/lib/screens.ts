@@ -14,14 +14,24 @@ export function screen(name: string): ImageMetadata {
   return img;
 }
 
+type Preview = { w: number; h: number; webp: string };
+
 /**
  * Style for an <img>: the screen's tiny preview (scripts/placeholders.sh) as
- * its background, shown until the real image has loaded.
+ * its background, shown until the real image has loaded. The 32 px preview
+ * sits in a small SVG with a Gaussian blur, so it scales up smooth instead of
+ * blocky (a loading placeholder, not a visual effect; it is covered once the
+ * image arrives). The alpha step keeps the blurred edges from fading out.
  */
 export function placeholder(name: string): string {
-  const data = (placeholders as Record<string, string>)[name];
-  if (!data) throw new Error(`No placeholder for ${name}: run scripts/placeholders.sh`);
-  return `background-image:url(${data})`;
+  const p = (placeholders as Record<string, Preview>)[name];
+  if (!p) throw new Error(`No placeholder for ${name}: run scripts/placeholders.sh`);
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${p.w} ${p.h}" preserveAspectRatio="none">` +
+    `<filter id="b" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="1.1"/>` +
+    `<feComponentTransfer><feFuncA type="discrete" tableValues="1 1"/></feComponentTransfer></filter>` +
+    `<image width="100%" height="100%" preserveAspectRatio="none" filter="url(#b)" href="data:image/webp;base64,${p.webp}"/></svg>`;
+  return `background-image:url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
 export const isPhone = (img: ImageMetadata) => img.height > img.width;
