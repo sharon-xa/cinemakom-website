@@ -38,6 +38,7 @@ const structured = jsonLd({
 
 <Base locale={locale} page="tv" title={t.meta.tvTitle} description={t.meta.tvDescription} jsonLd={structured} release={release.tag} bodyClass="tv">
   <main id="main" class="mx-auto flex max-w-[52rem] flex-col px-8 py-8 sm:px-12 sm:py-10">
+    <h1 class="sr-only">{t.meta.tvTitle}</h1>
     <Logo locale={locale} size={56} />
     <p class="mt-6 text-cream-soft">{t.tvPage.lead}</p>
 

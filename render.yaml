@@ -8,7 +8,7 @@ services:
     # Check, test and build in one go: if any step fails, Render keeps serving
     # the last good deploy (and in CI the build fails when the release can't
     # be read or has no Android files, so a broken page is never published).
-    buildCommand: npm ci && npm run check && npm test && npm run lint:rtl && npm run build
+    buildCommand: npm ci && npm run check && npm test && npm run lint:rtl && npm run build && npm run budgets
     staticPublishPath: ./dist
     autoDeployTrigger: commit
     previews:

@@ -15,11 +15,12 @@ npm run check      # astro check (types)
 npm test           # vitest
 npm run lint:rtl   # fails on physical left/right classes
 npm run build      # static site in dist/ (fetches the latest release; GITHUB_TOKEN raises the rate limit)
+npm run budgets    # CSS ≤ 20 KB, JS ≤ 2 KB per page (after build)
 npm run preview    # serve dist/
 scripts/fonts.sh   # rebuild the WOFF2 subsets from fonts-src/
 scripts/placeholders.sh  # rebuild the screenshots' loading previews
 ```
-All of check, test, lint:rtl and build must pass before you finish.
+All of check, test, lint:rtl, build and budgets must pass before you finish.
 
 ## Rules
 - **Release data comes from the GitHub API at build time** (`src/lib/release.ts`). Never hardcode a version, file name, size or link. Match assets by suffix. In CI a failed fetch or a missing Android file fails the build.
@@ -54,4 +55,4 @@ All of check, test, lint:rtl and build must pass before you finish.
 - [x] W3 Home page (owner reviewed)
 - [x] W4 Download flow + TV page
 - [x] W5 Runtime refresh + deploy workflow
-- [ ] W6 Polish and budgets
+- [x] W6 Polish and budgets

@@ -1,4 +1,10 @@
 /*
+ * Display faces (the hero lettering, section titles) use `swap`: they carry
+ * the look. The UI faces (IBM Plex) use `optional` and are preloaded by
+ * Base.astro: they're normally ready before the first paint, and if not, that
+ * page view keeps the system font instead of reflowing the text (CLS 0). They
+ * are cached for the next page.
+ *
  * Self-hosted, script-subset fonts made by scripts/fonts.sh (SIL OFL, see
  * fonts-src/licenses/). unicode-range keeps Arabic pages from fetching Latin
  * display glyphs they never show, and the other way round.
@@ -24,7 +30,7 @@
   src: url('../assets/fonts/ibm-plex-sans-latin.woff2') format('woff2');
   font-weight: 400 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   unicode-range: U+0000-00FF, U+2010-2027, U+2030-203A, U+20AC;
 }
 @font-face {
@@ -32,7 +38,7 @@
   src: url('../assets/fonts/ibm-plex-sans-arabic-400.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }
 @font-face {
@@ -40,7 +46,7 @@
   src: url('../assets/fonts/ibm-plex-sans-arabic-500.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }
 @font-face {
@@ -48,6 +54,6 @@
   src: url('../assets/fonts/ibm-plex-sans-arabic-600.woff2') format('woff2');
   font-weight: 600 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
   unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
 }

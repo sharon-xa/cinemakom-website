@@ -135,12 +135,13 @@ npm run check      # type check (astro check)
 npm test           # unit tests (vitest)
 npm run lint:rtl   # fails on physical left/right classes and properties
 npm run build      # static site in dist/
+npm run budgets    # fails if a page's CSS or JS outgrows its budget (after build)
 npm run preview    # serve dist/
 ```
 
 `npm run build` calls the GitHub API. Set `GITHUB_TOKEN` to raise the rate limit, or `RELEASE_SAMPLE=1` to use the saved release and work offline.
 
-Check, test, `lint:rtl` and build must all pass before a change is merged.
+Check, test, `lint:rtl`, build and budgets must all pass before a change is merged (Render runs all five on every deploy).
 
 Three scripts rebuild the generated assets, which are committed:
 
