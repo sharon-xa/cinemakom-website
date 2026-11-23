@@ -172,3 +172,7 @@ Read [`AGENTS.md`](AGENTS.md) first: it lists the rules the site keeps (and the 
 ### Credits
 
 Typefaces: [Big Shoulders Display](https://github.com/xotypeco/big_shoulders), [Reem Kufi](https://github.com/aliftype/reem-kufi), [IBM Plex Sans and IBM Plex Sans Arabic](https://github.com/IBM/plex), all under the [SIL Open Font License](public/licenses/).
+
+### Licence
+
+The site's code is under the [MIT License](LICENSE). The typefaces keep their own licence (OFL, above). The Cinemakom logo and the app screenshots come from the [app's repository](https://github.com/sharon-xa/cinemakom).
