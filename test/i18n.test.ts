@@ -55,3 +55,18 @@ describe('fill', () => {
     expect(fill('v{version} · {date} {x}', { version: '1.0.0', date: '20 Nov 2026' })).toBe('v1.0.0 · 20 Nov 2026 {x}');
   });
 });
+
+describe('screenshots', () => {
+  it('every screenshot has a loading preview (scripts/placeholders.sh)', async () => {
+    const { readdirSync } = await import('node:fs');
+    const placeholders = (await import('../src/data/placeholders.json')).default as Record<string, string>;
+    const files = readdirSync('src/assets/screens').filter((f) => f.endsWith('.png')).map((f) => f.replace(/\.png$/, ''));
+    expect(Object.keys(placeholders).sort()).toEqual(files.sort());
+    for (const v of Object.values(placeholders)) expect(v).toMatch(/^data:image\/webp;base64,/);
+  });
+
+  it('every strip item names a screenshot that exists', async () => {
+    const { existsSync } = await import('node:fs');
+    for (const d of [ar, en]) for (const s of d.screens.items) expect(existsSync(`src/assets/screens/${s.file}.png`), s.file).toBe(true);
+  });
+});

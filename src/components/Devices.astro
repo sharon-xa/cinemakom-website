@@ -4,7 +4,7 @@
 // the left of the (English) desktop screenshot in both languages. On phones the
 // phone is the star (that's what most visitors hold), so it is drawn larger.
 import { Picture } from 'astro:assets';
-import { screen } from '../lib/screens';
+import { placeholder, screen } from '../lib/screens';
 import { dict, type Locale } from '../i18n';
 
 interface Props {
@@ -28,7 +28,8 @@ const desktop = screen('desktop-home-en');
       sizes="(min-width: 75rem) 900px, (min-width: 37.5rem) 88vw, 84vw"
       loading="eager"
       decoding="async"
-      class="block h-auto w-full rounded-card bg-screen"
+      style={placeholder('desktop-home-en')}
+      class="lqip block h-auto w-full rounded-card bg-screen"
     />
   </div>
   <div class="phone self-end rounded-device border border-velvet bg-booth p-1 sm:p-2">
@@ -42,7 +43,8 @@ const desktop = screen('desktop-home-en');
       loading="eager"
       fetchpriority="high"
       decoding="async"
-      class="block h-auto w-full rounded-device-screen bg-screen"
+      style={placeholder(`phone-home-${locale}`)}
+      class="lqip block h-auto w-full rounded-device-screen bg-screen"
     />
   </div>
 </div>

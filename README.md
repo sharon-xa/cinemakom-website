@@ -139,11 +139,12 @@ npm run preview    # serve dist/
 
 Check, test, `lint:rtl` and build must all pass before a change is merged.
 
-Two scripts rebuild the generated assets, which are committed:
+Three scripts rebuild the generated assets, which are committed:
 
 ```bash
 scripts/fonts.sh   # WOFF2 subsets in src/assets/fonts/ from fonts-src/ (Python; sets up fontTools itself)
 scripts/og.sh      # link-preview images public/og-ar.png and public/og-en.png (needs rsvg-convert)
+scripts/placeholders.sh  # tiny loading previews of the screenshots, src/data/placeholders.json (needs ImageMagick)
 ```
 
 ### Layout

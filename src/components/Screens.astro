@@ -7,7 +7,7 @@
 import { Picture } from 'astro:assets';
 import SectionHead from './SectionHead.astro';
 import Icon from './Icon.astro';
-import { screen } from '../lib/screens';
+import { placeholder, screen } from '../lib/screens';
 import { dict, type Locale } from '../i18n';
 
 interface Props {
@@ -42,7 +42,8 @@ const items = t.screens.items.map((s) => ({ ...s, img: screen(s.file) }));
                   sizes="(min-width: 37.5rem) 236px, min(66vw, 17rem)"
                   loading="lazy"
                   decoding="async"
-                  class="block aspect-[780/1688] h-auto w-full rounded-device-screen bg-screen"
+                  style={placeholder(s.file)}
+                  class="lqip block aspect-[780/1688] h-auto w-full rounded-device-screen bg-screen"
                 />
               </div>
               <figcaption class="mt-3 px-1 text-caption text-dust">{s.caption}</figcaption>

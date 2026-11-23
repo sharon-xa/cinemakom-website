@@ -152,6 +152,15 @@
   }
 }
 
+/* An image with its tiny preview behind it (placeholder() in src/lib/screens.ts).
+   The alt text stays for screen readers but isn't painted over the preview
+   while the image loads. */
+@utility lqip {
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: transparent;
+}
+
 /* Inline links in running text. */
 @utility prose-links {
   & a {
