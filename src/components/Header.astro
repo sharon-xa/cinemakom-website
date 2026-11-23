@@ -26,9 +26,9 @@ const home = pageUrl(locale, 'home');
       <Logo locale={locale} size={36} />
     </a>
     <nav aria-label={t.nav.menu} class="ms-auto flex items-center gap-1 sm:gap-2">
-      <a href={`${home}#download`} class="nav-link max-sm:hidden">{t.nav.download}</a>
-      <a href={`${home}#questions`} class="nav-link max-md:hidden">{t.nav.questions}</a>
-      <a href={REPO_URL} class="nav-link max-md:hidden" aria-label={t.nav.githubLabel}>
+      <a href={`${home}#download`} class="nav-link inline-flex max-sm:hidden">{t.nav.download}</a>
+      <a href={`${home}#questions`} class="nav-link inline-flex max-md:hidden">{t.nav.questions}</a>
+      <a href={REPO_URL} class="nav-link inline-flex max-md:hidden" aria-label={t.nav.githubLabel}>
         <Icon name="github" size={18} />
         <span>{t.nav.github}</span>
       </a>
@@ -39,7 +39,6 @@ const home = pageUrl(locale, 'home');
 
 <style>
   .nav-link {
-    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     min-block-size: 2.75rem;

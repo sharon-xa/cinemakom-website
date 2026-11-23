@@ -1,0 +1,15 @@
+---
+interface Props {
+  id: string;
+  eyebrow: string;
+  title: string;
+  class?: string;
+}
+const { id, eyebrow, title, class: cls = '' } = Astro.props;
+---
+
+<header class:list={['mb-10 sm:mb-14', cls]}>
+  <p class="eyebrow mb-3">{eyebrow}</p>
+  <h2 id={id} class="section-title">{title}</h2>
+  <slot />
+</header>

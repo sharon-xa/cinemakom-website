@@ -1,0 +1,44 @@
+---
+// Features as tonight's programme: big bulb numerals, like the app's episode rows.
+import SectionHead from './SectionHead.astro';
+import { dict, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = dict(locale);
+const num = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+<section class="wrap py-16 sm:py-24" aria-labelledby="features-title">
+  <SectionHead id="features-title" eyebrow={t.features.eyebrow} title={t.features.title} />
+  <ol class="grid gap-x-16 md:grid-cols-2">
+    {
+      t.features.items.map((f, i) => (
+        <li class="flex gap-6 border-t border-velvet py-7 sm:gap-8 sm:py-9">
+          <span class="numeral" aria-hidden="true">
+            {num(i)}
+          </span>
+          <div class="pt-1">
+            <h3 class="mb-2 text-title leading-snug font-semibold text-cream">{f.title}</h3>
+            <p class="max-w-[52ch] leading-relaxed text-cream-soft">{f.body}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .numeral {
+    flex: none;
+    min-inline-size: 2.2ch;
+    font-family: var(--font-display);
+    font-size: var(--text-numeral);
+    font-weight: 900;
+    line-height: 0.9;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-bulb);
+  }
+</style>

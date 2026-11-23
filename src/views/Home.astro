@@ -2,21 +2,32 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Hero from '../components/Hero.astro';
+import Ticket from '../components/Ticket.astro';
+import Programme from '../components/Programme.astro';
+import Screens from '../components/Screens.astro';
+import Download from '../components/Download.astro';
+import Faq from '../components/Faq.astro';
 import { dict, type Locale } from '../i18n';
+import { getRelease } from '../lib/release';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 const t = dict(locale);
+const release = await getRelease();
 ---
 
 <Base locale={locale} page="home" title={t.meta.title} description={t.meta.description}>
   <Header locale={locale} />
-  <main id="main" class="wrap py-16">
-    <p class="eyebrow">{t.hero.eyebrow}</p>
-    <h1 class="font-display text-hero font-black text-cream">{t.hero.headline.join(' ')}</h1>
-    <p class="max-w-[65ch] text-cream-soft">{t.hero.lede}</p>
+  <main id="main">
+    <Hero locale={locale} release={release} />
+    <Ticket locale={locale} />
+    <Programme locale={locale} />
+    <Screens locale={locale} />
+    <Download locale={locale} release={release} />
+    <Faq locale={locale} />
   </main>
   <Footer locale={locale} page="home" />
 </Base>

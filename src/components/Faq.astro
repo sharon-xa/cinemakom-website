@@ -1,0 +1,40 @@
+---
+import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
+import { dict, fill, type Locale } from '../i18n';
+import { ISSUES_URL } from '../lib/release';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = dict(locale);
+---
+
+<section id="questions" class="wrap scroll-mt-6 py-16 sm:py-24" aria-labelledby="faq-title">
+  <div class="grid gap-x-16 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)]">
+    <SectionHead id="faq-title" eyebrow={t.faq.eyebrow} title={t.faq.title} />
+    <div class="border-b border-velvet">
+      {
+        t.faq.items.map((item) => (
+          <details class="faq group border-t border-velvet">
+            <summary class="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 text-title font-semibold text-cream">
+              {item.q}
+              <Icon name="chevronDown" size={22} class="chev text-dust transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="prose-links max-w-[62ch] pb-6 leading-relaxed text-cream-soft" set:html={fill(item.a, { issues: ISSUES_URL })} />
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq summary:hover {
+    color: var(--color-bulb-bright);
+  }
+</style>

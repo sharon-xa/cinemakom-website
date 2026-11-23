@@ -37,6 +37,7 @@
   --radius-card: 12px;
   --radius-panel: 16px;
   --radius-device: 36px;
+  --radius-device-screen: 28px;
 
   --shadow-*: initial;
   --inset-shadow-*: initial;

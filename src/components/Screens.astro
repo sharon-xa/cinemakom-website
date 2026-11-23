@@ -1,0 +1,96 @@
+---
+// Screenshots as a film strip: a scroll-snap row on night, with dust captions
+// and a faint row of perforations above and below.
+import { Picture } from 'astro:assets';
+import SectionHead from './SectionHead.astro';
+import { screen, isPhone } from '../lib/screens';
+import { dict, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = dict(locale);
+const items = t.screens.items.map((s) => ({ ...s, img: screen(s.file) }));
+---
+
+<section class="py-16 sm:py-24" aria-labelledby="screens-title">
+  <div class="wrap">
+    <SectionHead id="screens-title" eyebrow={t.screens.eyebrow} title={t.screens.title} class="sm:mb-10" />
+  </div>
+  <div class="strip-frame">
+    <ul class="strip" tabindex="0" aria-label={t.screens.title}>
+      {
+        items.map((s) => {
+          const phone = isPhone(s.img);
+          return (
+            <li class:list={['shot', phone ? 'shot-phone' : 'shot-desktop']}>
+              <figure>
+                <Picture
+                  src={s.img}
+                  alt={s.alt}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="jpg"
+                  widths={phone ? [200, 300, 420] : [520, 780, 1040, 1300]}
+                  sizes={phone ? '(min-width: 37.5rem) 220px, 190px' : '(min-width: 37.5rem) 780px, 85vw'}
+                  loading="lazy"
+                  decoding="async"
+                  class="block h-auto w-full rounded-card bg-booth"
+                />
+                <figcaption class="mt-3 text-caption text-dust">{s.caption}</figcaption>
+              </figure>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+  <p class="wrap mt-2 text-caption text-dust sm:hidden" aria-hidden="true">{t.screens.hint}</p>
+</section>
+
+<style>
+  .strip-frame {
+    border-block: 6px dotted var(--color-velvet);
+    padding-block: 1.75rem 1.25rem;
+  }
+  .strip {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.25rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scroll-padding-inline: var(--gutter);
+    padding-inline: var(--gutter);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-velvet-strong) transparent;
+  }
+  /* Line the first shot up with the page's content edge on wide screens. */
+  @media (min-width: 75rem) {
+    .strip {
+      padding-inline: max(var(--gutter), calc((100vw - 75rem) / 2));
+      scroll-padding-inline: max(var(--gutter), calc((100vw - 75rem) / 2));
+    }
+  }
+  .strip:focus-visible {
+    outline-offset: -2px;
+  }
+  .shot {
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .shot-phone {
+    inline-size: 190px;
+  }
+  .shot-desktop {
+    inline-size: min(85vw, 712px);
+  }
+  @media (min-width: 37.5rem) {
+    .shot-phone {
+      inline-size: 220px;
+    }
+    .shot-desktop {
+      inline-size: 780px;
+    }
+  }
+</style>

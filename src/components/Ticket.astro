@@ -1,0 +1,80 @@
+---
+// "Is this for you?" as an admission ticket: notched ends (a CSS mask, not a
+// visible gradient), a dashed perforation and a stamped stub.
+import Mark from './Mark.astro';
+import Icon, { type IconName } from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { dict, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = dict(locale);
+const icons: IconName[] = ['signal', 'download', 'free'];
+---
+
+<section class="wrap py-16 sm:py-24" aria-labelledby="ticket-title">
+  <SectionHead id="ticket-title" eyebrow={t.ticket.eyebrow} title={t.ticket.title} />
+  <div class="ticket grid bg-booth md:grid-cols-[13rem_1fr]">
+    <div
+      class="stub flex items-center gap-4 border-b-2 border-dashed border-velvet px-8 md:flex-col md:items-start md:justify-center md:border-e-2 md:border-b-0 md:px-10"
+      aria-label={t.ticket.stubLabel}
+      role="img"
+    >
+      <Mark size={48} />
+      <p class="stamp font-display text-cream" aria-hidden="true">
+        {t.ticket.stub.map((s) => <span class="block">{s}</span>)}
+      </p>
+    </div>
+    <ul class="grid gap-8 px-8 py-9 sm:grid-cols-3 sm:gap-8 md:px-12 md:py-12">
+      {
+        t.ticket.facts.map((f, i) => (
+          <li>
+            <Icon name={icons[i]!} size={26} class="mb-4 text-bulb" />
+            <h3 class="mb-2 text-title leading-snug font-semibold text-cream">{f.title}</h3>
+            <p class="text-[0.9375rem] leading-relaxed text-cream-soft">{f.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ticket {
+    --notch: 18px;
+    --notch-y: 7.5rem;
+    border-radius: var(--radius-panel);
+    /* Two half-circle bites at the ends, level with the perforation. */
+    mask:
+      radial-gradient(circle var(--notch) at 0 var(--notch-y), #0000 98%, #000) no-repeat,
+      radial-gradient(circle var(--notch) at 100% var(--notch-y), #0000 98%, #000) no-repeat;
+    mask-composite: intersect;
+  }
+  .stub {
+    min-block-size: 7.5rem;
+  }
+  @media (min-width: 48rem) {
+    .ticket {
+      --notch-y: 50%;
+    }
+  }
+  .stamp {
+    font-size: 1.375rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .stamp:lang(ar) {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .stamp span:first-child {
+    color: var(--color-bulb);
+  }
+</style>
