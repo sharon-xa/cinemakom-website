@@ -55,8 +55,8 @@ render ar "
   <g transform=\"translate(1004 120) scale(1.3)\">$MARK</g>
   <text x=\"990\" y=\"184\" text-anchor=\"end\" font-family=\"Reem Kufi\" font-weight=\"700\" font-size=\"52\" fill=\"#F4B740\">سينماكم</text>
   <text x=\"990\" y=\"230\" text-anchor=\"end\" font-family=\"Big Shoulders Display\" font-weight=\"800\" font-size=\"36\" letter-spacing=\"1\" fill=\"#F4EAD7\">CINEMAKOM</text>
-  <text x=\"1134\" y=\"375\" text-anchor=\"end\" font-family=\"Reem Kufi\" font-weight=\"700\" font-size=\"104\" fill=\"#F4EAD7\">سينمانا</text>
-  <text x=\"1134\" y=\"500\" text-anchor=\"end\" font-family=\"Reem Kufi\" font-weight=\"700\" font-size=\"104\" fill=\"#F4EAD7\">&#x200F;من مقعد أفضل.&#x200F;</text>
+  <text x=\"1134\" y=\"375\" text-anchor=\"end\" font-family=\"Reem Kufi\" font-weight=\"700\" font-size=\"104\" fill=\"#F4EAD7\">سينمانا،</text>
+  <text x=\"1134\" y=\"500\" text-anchor=\"end\" font-family=\"Reem Kufi\" font-weight=\"700\" font-size=\"104\" fill=\"#F4EAD7\">&#x200F;بس أحلى.&#x200F;</text>
   <text x=\"66\" y=\"178\" font-family=\"IBM Plex Sans Arabic\" font-weight=\"600\" font-size=\"26\" fill=\"#B9A88E\">مجاني · إيرثلنك، العراق</text>
 "
 

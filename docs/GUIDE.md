@@ -238,7 +238,7 @@ Write it short, warm and concrete. Every string lives in one dictionary per lang
 | Key | English | Arabic |
 |---|---|---|
 | eyebrow | NOW SHOWING | يُعرض الآن |
-| headline | Cinemana, from a better seat. | سينمانا من مقعد أفضل. |
+| headline | Cinemana, from a better seat. | سينمانا، بس أحلى. *(the owner chose this Iraqi line on 2026-11-23)* |
 | lede | Cinemakom is a free, unofficial app for watching Cinemana's movies and series on your phone, TV and computer. | سينماكم تطبيق مجاني وغير رسمي لمشاهدة أفلام ومسلسلات سينمانا على هاتفك وتلفازك وحاسوبك. |
 | earthlink | Works only on an Earthlink connection in Iraq. Cinemana itself is only reachable through Earthlink, so Cinemakom is too. Titles you download play anywhere. | يعمل فقط عبر إنترنت إيرثلنك في العراق، لأن سينمانا نفسها لا تُفتح إلا عبر إيرثلنك. أما ما تحمّله فيعمل في أي مكان. |
 | pick | Pick the device you'll watch on | اختر الجهاز الذي ستشاهد عليه |
