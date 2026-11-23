@@ -1,41 +1,43 @@
 ---
-// The hero's picture: a phone in a CSS-drawn frame, overlapping a computer
-// screen set back behind it. The posters inside bring the page's colour.
+// The screen under the sign: the app on a computer, with a phone standing in
+// front of its corner. The phone covers the computer's side menu, which is on
+// the left of the (English) desktop screenshot in both languages.
 import { Picture } from 'astro:assets';
 import { screen } from '../lib/screens';
 import { dict, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
+  class?: string;
 }
-const { locale } = Astro.props;
+const { locale, class: cls = '' } = Astro.props;
 const t = dict(locale);
 const phone = screen(`phone-home-${locale}`);
 const desktop = screen('desktop-home-en');
 ---
 
-<div class="devices relative mx-auto w-full max-w-[40rem]">
-  <div class="desktop absolute end-0 top-0 w-[88%] rounded-panel border border-velvet bg-booth p-1.5 sm:p-2">
+<div class:list={['devices mx-auto grid w-full max-w-[64rem]', cls]}>
+  <div class="desktop w-[88%] justify-self-center rounded-panel border border-velvet bg-booth p-1.5 sm:p-2.5">
     <Picture
       src={desktop}
       alt={t.hero.desktopAlt}
       formats={['avif', 'webp']}
       fallbackFormat="jpg"
-      widths={[480, 720, 960, 1280]}
-      sizes="(min-width: 64rem) 560px, 88vw"
-      loading="lazy"
+      widths={[480, 720, 960, 1280, 1800]}
+      sizes="(min-width: 75rem) 900px, 88vw"
+      loading="eager"
       decoding="async"
       class="block h-auto w-full rounded-card bg-screen"
     />
   </div>
-  <div class="phone absolute start-0 bottom-0 w-[36%] rounded-device border border-velvet bg-booth p-1.5 sm:p-2">
+  <div class="phone w-[24%] self-end rounded-device border border-velvet bg-booth p-1 sm:p-2">
     <Picture
       src={phone}
       alt={t.hero.phoneAlt}
       formats={['avif', 'webp']}
       fallbackFormat="jpg"
       widths={[160, 240, 360, 480]}
-      sizes="(min-width: 64rem) 230px, 36vw"
+      sizes="(min-width: 75rem) 245px, 24vw"
       loading="eager"
       fetchpriority="high"
       decoding="async"
@@ -45,8 +47,18 @@ const desktop = screen('desktop-home-en');
 </div>
 
 <style>
-  /* Tall enough for the phone (36% wide at 780×1688, plus its frame). */
-  .devices {
-    aspect-ratio: 10 / 8.4;
+  /* One grid cell: the phone starts lower than the computer, so it stands in
+     front of the computer's bottom corner and a little below it. */
+  .devices > * {
+    grid-area: 1 / 1;
+  }
+  .phone {
+    justify-self: start;
+    margin-block-start: 16%;
+  }
+  /* The desktop screenshot is the English (LTR) one in both languages: keep the phone
+     over its side menu (on the left) on Arabic pages too. */
+  .devices:dir(rtl) .phone {
+    justify-self: end;
   }
 </style>

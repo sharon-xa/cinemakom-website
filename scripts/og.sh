@@ -20,18 +20,15 @@ export FONTCONFIG_FILE="$TMP/fonts.conf"
 # The mark's path data, scaled into place.
 MARK=$(sed -E 's/.*<path ([^>]*)\/>.*/<path \1\/>/' src/assets/brand/mark-full.svg)
 
-bulbs() { # bulbs <y> <dim indexes…>
-  local y=$1; shift
-  local dim=" $* " out='' x i=0
+bulbs() { # bulbs <y>: a row of lit bulbs
+  local y=$1 out='' x
   for ((x = 66; x <= 1134; x += 14)); do
-    if [[ $dim == *" $i "* ]]; then c='#5A4634'; else c='#F4B740'; fi
-    out+="<circle cx=\"$x\" cy=\"$y\" r=\"3.5\" fill=\"$c\"/>"
-    i=$((i + 1))
+    out+="<circle cx=\"$x\" cy=\"$y\" r=\"3.5\" fill=\"#F4B740\"/>"
   done
   printf '%s' "$out"
 }
-TOP=$(bulbs 72 11 12 49)
-BOTTOM=$(bulbs 558 30 63)
+TOP=$(bulbs 72)
+BOTTOM=$(bulbs 558)
 
 render() { # render <locale> <svg body>
   cat > "$TMP/og-$1.svg" <<EOF

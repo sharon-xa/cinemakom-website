@@ -35,14 +35,15 @@ const en = {
   },
   hero: {
     eyebrow: 'Now showing',
+    // One entry per line of the sign.
     headline: ['Cinemana,', 'from a better seat.'],
     lede: 'Cinemakom is a free, unofficial app for watching Cinemana’s movies and series on your phone, TV and computer.',
     cta: 'Download',
     caption: 'Version {version} · {date}',
-    platforms: 'Android · Android TV · Windows · Linux',
+    platformsLabel: 'Runs on',
+    platforms: ['Android', 'Android TV', 'Windows', 'Linux'],
     earthlinkTitle: 'Earthlink only',
-    earthlink:
-      'Works only on an Earthlink connection in Iraq. Cinemana itself is only reachable through Earthlink, so Cinemakom is too. Titles you download play anywhere.',
+    earthlink: 'Works only on an Earthlink connection in Iraq. Titles you download play anywhere.',
     phoneAlt: 'Cinemakom’s Home screen on a phone: a large banner, a Play button and rows of posters.',
     desktopAlt: 'Cinemakom on a computer: the Home screen with a side menu, Continue watching and rows of posters.',
   },

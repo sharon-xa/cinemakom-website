@@ -1,39 +1,52 @@
 ---
-// A row of marquee bulbs (GUIDE §8.4–8.5). Used at most twice on a page.
-// With `chase`, the bulbs light in sequence once (about 1.2 s), then stay lit,
-// except the `dim` ones. Without motion they are simply lit.
+// A row (or column) of marquee bulbs (GUIDE §8.4–8.5): the hero's sign frame
+// and the footer. As many bulbs as fit are shown, spread evenly so none is cut
+// off; the rest wrap onto a hidden line. With `chase`, they light in sequence
+// once, from `from` ms over `span` ms, then all stay lit. Without motion they
+// are simply lit.
 interface Props {
+  /** At least as many as can fit; extras stay hidden. */
   count?: number;
-  dim?: number[];
+  vertical?: boolean;
   chase?: boolean;
-  /** Light from the far end (for the row under the headline). */
+  /** Light from the far end. */
   reverse?: boolean;
+  from?: number;
+  span?: number;
   class?: string;
 }
-const { count = 64, dim = [], chase = false, reverse = false, class: cls = '' } = Astro.props;
-const step = 1200 / count;
-const bulbs = Array.from({ length: count }, (_, i) => ({
-  dim: dim.includes(i),
-  delay: Math.round((reverse ? count - 1 - i : i) * step),
-}));
+const {
+  count = 64,
+  vertical = false,
+  chase = false,
+  reverse = false,
+  from = 0,
+  span = 1200,
+  class: cls = '',
+} = Astro.props;
+const delays = Array.from({ length: count }, (_, i) => Math.round(from + ((reverse ? count - 1 - i : i) * span) / count));
 ---
 
-<div class:list={['bulbs', chase && 'bulbs-chase', cls]} aria-hidden="true">
-  {
-    bulbs.map((b) => (
-      <span class:list={['bulb', b.dim && 'bulb-dim']} style={chase && !b.dim ? `--d:${b.delay}ms` : undefined} />
-    ))
-  }
+<div class:list={['bulbs', vertical && 'bulbs-v', chase && 'bulbs-chase', cls]} aria-hidden="true">
+  {delays.map((d) => <span class="bulb" style={chase ? `--d:${d}ms` : undefined} />)}
 </div>
 
 <style>
   .bulbs {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     gap: 7px;
     overflow: hidden;
-    height: 6px;
-    contain: strict;
+    block-size: 6px;
     inline-size: 100%;
+    /* Never size the parent: a column takes the height it is given. */
+    contain: strict;
+  }
+  .bulbs-v {
+    flex-direction: column;
+    block-size: 100%;
+    inline-size: 6px;
   }
   .bulb {
     position: relative;
@@ -50,10 +63,7 @@ const bulbs = Array.from({ length: count }, (_, i) => ({
     border-radius: inherit;
     background: var(--color-bulb);
   }
-  .bulb-dim::after {
-    opacity: 0;
-  }
-  .bulbs-chase .bulb:not(.bulb-dim)::after {
+  .bulbs-chase .bulb::after {
     animation: bulb-on 180ms var(--ease-out) var(--d, 0ms) both;
   }
   @keyframes bulb-on {

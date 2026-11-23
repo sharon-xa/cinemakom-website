@@ -303,7 +303,7 @@ Rules (from the app): **bulb is scarce** (one primary action per view, plus indi
 ### 8.4 Motion
 
 - 150 ms ease-out for state changes. Nothing loops.
-- The marquee bulbs in the hero light in sequence **once** on load (a CSS chase, about 1.2 s), then stay lit with one or two dimmed bulbs, as in the logo boards.
+- The marquee bulbs in the hero light in sequence **once** on load (a CSS chase, about 1.2 s), then all stay lit. *(The owner asked for no dark bulbs, 2026-11-23: they read as broken.)*
 - `prefers-reduced-motion: reduce` → no animation at all.
 - Only `transform` and `opacity` animate.
 
