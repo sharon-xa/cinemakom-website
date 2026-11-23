@@ -372,7 +372,9 @@ Each milestone ends with `npm run check`, `npm test`, `npm run build`, `npm run 
 2. **Render:** New → Blueprint, pick `sharon-xa/cinemakom-website` (it reads `render.yaml`). In the service's Environment, add `GITHUB_TOKEN`: a fine-grained GitHub token with **Public repositories (read-only)** access and no permissions, used only to raise the API rate limit during builds.
 3. **The domain:** in the service's Settings → Custom Domains, add `cinemakom.sharon-xa.com`. At the DNS provider of `sharon-xa.com`, add a `CNAME` record `cinemakom` → the service's `….onrender.com` address. Render issues the certificate.
 4. **Instant updates (recommended):** copy the service's **Deploy Hook** URL (Settings). Store it as the Actions secret `RENDER_DEPLOY_HOOK` in **both** the app repo (for Appendix B) and the site repo (for the 6-hourly check). Then add the step in **Appendix B** to the app's `release.yml`. Without it, the 6-hourly check and the runtime refresh still update the site, just later. The hook URL is a secret: anyone with it can start builds.
-5. Proofread the Arabic copy.
+5. **Search engines:** in [Google Search Console](https://search.google.com/search-console), add a *Domain* property for `sharon-xa.com` (verified with a DNS TXT record, so nothing goes in this repo) and submit `https://cinemakom.sharon-xa.com/sitemap-index.xml`. Then in [Bing Webmaster Tools](https://www.bing.com/webmasters), import the site from Search Console: Bing's index also feeds ChatGPT search and Copilot.
+6. **Links to the site** (the biggest ranking signal for a new site): set the app repo's *About → Website* to `https://cinemakom.sharon-xa.com/`, add topics (`cinemana`, `earthlink`, `iraq`, `android-tv`, `flutter`), link the site from the app's README and release notes, and share it where Iraqi Earthlink users talk about Cinemana.
+7. Proofread the Arabic copy, including the page titles.
 
 ---
 
@@ -410,6 +412,7 @@ All of check, test, lint:rtl and build must pass before you finish.
 - **Links:** every internal URL through the `url()` helper (`import.meta.env.BASE_URL`).
 - **Performance budgets:** home first view ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2 KB, CLS 0, Lighthouse mobile ≥ 95 / 100 / 100 / 100. Self-hosted subset WOFF2 fonts; images through `astro:assets`.
 - **The logo** is the app's SVGs from `branding/`, inlined. Never redraw or alter it.
+- **Search and AI assistants:** every indexed page has its own title and description per language (search terms first: Cinemana / سينمانا, Android TV, Windows…), canonical, `hreflang`, Open Graph and JSON-LD from `src/lib/seo.ts`; the home page adds the FAQ. `/robots.txt` allows all crawlers, AI ones included; `/llms.txt` summarises the site in both languages from the dictionaries and release. Structured data never has ratings or reviews and never names Cinemana, Shabakaty or Earthlink as the brand or publisher. Real text in the HTML (no text in images, no content that needs JS).
 - Keep `/tv/` and `/en/tv/` working forever: people type that address on their TVs.
 - Run `prettier`/formatters only on files you changed.
 

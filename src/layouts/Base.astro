@@ -4,6 +4,7 @@
 import '../styles/global.css';
 import { dict, other, LOCALES, type Locale } from '../i18n';
 import { absolute, pageUrl, url, type Page } from '../lib/url';
+import { jsonForScript } from '../lib/seo';
 import displayAr from '../assets/fonts/reem-kufi-700-arabic.woff2?url';
 import displayEn from '../assets/fonts/big-shoulders-display-latin.woff2?url';
 
@@ -12,11 +13,15 @@ interface Props {
   /** The page, for canonical and hreflang. Omit for pages that aren't indexed (404). */
   page?: Page;
   title: string;
+  /** The title for social cards; defaults to `title`. */
+  ogTitle?: string;
   description: string;
+  /** Structured data for search engines (src/lib/seo.ts). */
+  jsonLd?: unknown;
   /** Extra class on <body>. */
   bodyClass?: string;
 }
-const { locale, page, title, description, bodyClass = '' } = Astro.props;
+const { locale, page, title, ogTitle = title, description, jsonLd, bodyClass = '' } = Astro.props;
 const t = dict(locale);
 const canonical = page ? absolute(pageUrl(locale, page)) : undefined;
 const ogImage = absolute(url(`og-${locale}.png`));
@@ -33,7 +38,7 @@ const ogLocale = locale === 'ar' ? 'ar_IQ' : 'en_GB';
     <meta name="theme-color" content="#15100C" />
     <meta name="color-scheme" content="dark" />
     <link rel="preload" href={locale === 'ar' ? displayAr : displayEn} as="font" type="font/woff2" crossorigin />
-    {page ? null : <meta name="robots" content="noindex" />}
+    <meta name="robots" content={page ? 'index, follow, max-image-preview:large' : 'noindex'} />
     {canonical && <link rel="canonical" href={canonical} />}
     {
       page &&
@@ -48,7 +53,7 @@ const ogLocale = locale === 'ar' ? 'ar_IQ' : 'en_GB';
     <link rel="sitemap" href={url('sitemap-index.xml')} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={t.brand.name} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={description} />
     {canonical && <meta property="og:url" content={canonical} />}
     <meta property="og:image" content={ogImage} />
@@ -58,6 +63,7 @@ const ogLocale = locale === 'ar' ? 'ar_IQ' : 'en_GB';
     <meta property="og:locale" content={ogLocale} />
     <meta property="og:locale:alternate" content={other(locale) === 'ar' ? 'ar_IQ' : 'en_GB'} />
     <meta name="twitter:card" content="summary_large_image" />
+    {jsonLd ? <script type="application/ld+json" is:inline set:html={jsonForScript(jsonLd)} /> : null}
     <slot name="head" />
   </head>
   <body class={bodyClass}>

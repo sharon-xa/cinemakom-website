@@ -29,6 +29,7 @@ All of check, test, lint:rtl and build must pass before you finish.
 - **Links:** every internal URL through the `url()` helper (`import.meta.env.BASE_URL`).
 - **Performance budgets:** home first view ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2 KB, CLS 0, Lighthouse mobile ≥ 95 / 100 / 100 / 100. Self-hosted subset WOFF2 fonts; images through `astro:assets`.
 - **The logo** is the app's SVGs from `branding/`, inlined. Never redraw or alter it.
+- **Search and AI assistants:** every indexed page has its own title and description per language (search terms first: Cinemana / سينمانا, Android TV, Windows…), canonical, `hreflang`, Open Graph and JSON-LD from `src/lib/seo.ts`; the home page adds the FAQ. `/robots.txt` allows all crawlers, AI ones included; `/llms.txt` summarises the site in both languages from the dictionaries and release. Structured data never has ratings or reviews and never names Cinemana, Shabakaty or Earthlink as the brand or publisher. Real text in the HTML (no text in images, no content that needs JS).
 - Keep `/tv/` and `/en/tv/` working forever: people type that address on their TVs.
 - Run `prettier`/formatters only on files you changed.
 

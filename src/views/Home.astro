@@ -10,6 +10,10 @@ import Download from '../components/Download.astro';
 import Faq from '../components/Faq.astro';
 import { dict, type Locale } from '../i18n';
 import { getRelease } from '../lib/release';
+import { jsonLd } from '../lib/seo';
+import { absolute } from '../lib/url';
+import { screen } from '../lib/screens';
+import { getImage } from 'astro:assets';
 
 interface Props {
   locale: Locale;
@@ -17,9 +21,22 @@ interface Props {
 const { locale } = Astro.props;
 const t = dict(locale);
 const release = await getRelease();
+// Screenshots for search results: the hero shots, as WebP.
+const shots = await Promise.all(
+  [`phone-home-${locale}`, 'desktop-home-en'].map((name) => getImage({ src: screen(name), format: 'webp', width: 1280 })),
+);
+const structured = jsonLd({
+  locale,
+  page: 'home',
+  title: t.meta.title,
+  description: t.meta.description,
+  release,
+  screenshots: shots.map((s) => absolute(s.src)),
+  faq: true,
+});
 ---
 
-<Base locale={locale} page="home" title={t.meta.title} description={t.meta.description}>
+<Base locale={locale} page="home" title={t.meta.title} ogTitle={t.meta.ogTitle} description={t.meta.description} jsonLd={structured}>
   <Header locale={locale} />
   <main id="main">
     <Hero locale={locale} release={release} />

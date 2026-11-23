@@ -6,11 +6,13 @@ const en = {
   meta: {
     lang: 'en',
     dir: 'ltr',
-    title: 'Cinemakom: Cinemana, from a better seat',
+    // The search title leads with what people search for; social cards get the tagline.
+    title: 'Cinemakom: free app for Cinemana on Android, TV, Windows and Linux',
+    ogTitle: 'Cinemakom: Cinemana, from a better seat',
     description:
       'A free, unofficial app for watching Cinemana’s movies and series on Android phones, Android TV, Windows and Linux. Works on Earthlink in Iraq.',
     ogAlt: 'Cinemakom: a free, unofficial app for Cinemana',
-    tvTitle: 'Cinemakom for TV: download',
+    tvTitle: 'Download Cinemakom for Android TV and TV boxes',
     tvDescription: 'Download Cinemakom for Android TV, Google TV and TV boxes.',
     notFoundTitle: 'This screen is dark · Cinemakom',
   },
