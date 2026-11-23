@@ -1,0 +1,7 @@
+0afdc0ed1f6ed9b8f4ec8ed34fc58b4fadf71daa7642ea9eb850c6746a6d9fcd  cinemakom-v1.0.0-android-arm64-v8a.apk
+d64561db9ee345a96d1dbf6f69ddeb82139d75ecd0367e6e8df4f4830d43bd2c  cinemakom-v1.0.0-android-armeabi-v7a.apk
+947ce633a7889aeda7211744b3a475a3d746b4d4e613a542c06e28238186b5c4  cinemakom-v1.0.0-android-x86_64.apk
+dbd640766996e7597022d3e424625552b9416d561cef10c103387fd8a57a18d6  cinemakom-v1.0.0-ios-unsigned.ipa
+f72dfead89c67bfdaf25715792fded8ed6b6bf9596d76e8971b9b34c8645c3aa  cinemakom-v1.0.0-linux-x64.tar.gz
+3c3063274ee9b4bda4e3594f3f6af82b07cbbc5c0b6b2241037a67d605cd0c9a  cinemakom-v1.0.0-macos.dmg
+4109e068caf41c8915a9d7641b3da614a8a2377a086e7d96ff9bb3107e73fa26  cinemakom-v1.0.0-windows-x64.zip

@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+@import './fonts.css';
+
+/*
+ * Marquee design tokens (docs/GUIDE.md §8, from the app's docs/DESIGN.md).
+ * Tailwind's defaults for colour, fonts, radii, shadows and blur are cleared
+ * first, so nothing off-brand can be used by accident.
+ */
+@theme {
+  --color-*: initial;
+  --color-night: #15100c;
+  --color-screen: #000000;
+  --color-booth: #221a14;
+  --color-booth-raised: #2c221a;
+  --color-nav-bar: #1b1510;
+  --color-velvet: #3a2c21;
+  --color-velvet-strong: #5a4634;
+  --color-cream: #f4ead7;
+  --color-cream-soft: #cdbea5;
+  --color-dust: #b9a88e;
+  --color-dust-dim: #6e5c47;
+  --color-bulb: #f4b740;
+  --color-bulb-bright: #ffd27a;
+  --color-on-bulb: #1a1208;
+  --color-ember: #e8735a;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-*: initial;
+  --font-display: 'Big Shoulders Display', 'Reem Kufi', system-ui, sans-serif;
+  --font-ui: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+
+  --radius-*: initial;
+  --radius-thumb: 6px;
+  --radius-poster: 10px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
+  --radius-device: 36px;
+
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --blur-*: initial;
+
+  /* Gutters switch at 600 and 1200 px, as in the app. */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 37.5rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 75rem;
+
+  --text-hero: clamp(3.5rem, 11vw, 9rem);
+  --text-section: clamp(1.75rem, 4vw, 2.75rem);
+  --text-numeral: clamp(2.25rem, 5vw, 3rem);
+  --text-body: 1.0625rem;
+  --text-title: 1.125rem;
+  --text-label: 1rem;
+  --text-caption: 0.875rem;
+  --text-eyebrow: 0.75rem;
+
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-night);
+    color: var(--color-cream);
+    font-family: var(--font-ui);
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+  body {
+    font-size: var(--text-body);
+    line-height: 1.55;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+  :lang(ar) body {
+    line-height: 1.7;
+  }
+  ::selection {
+    background: var(--color-bulb);
+    color: var(--color-on-bulb);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-bulb);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+}
