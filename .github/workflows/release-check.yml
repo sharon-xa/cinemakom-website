@@ -1,0 +1,53 @@
+# The safety net for releases (GUIDE §5.2). The main path is the app's
+# release workflow calling Render's deploy hook the moment a release is
+# published. If that call was missed, this check finds it within 6 hours:
+# it compares the app's latest release with the tag the live site reports in
+# /version.json, and calls the same deploy hook only when they differ, so a
+# normal run takes seconds and builds nothing.
+#
+# Needs the repository secret RENDER_DEPLOY_HOOK (Render → the site → Settings
+# → Deploy Hook). GitHub turns scheduled workflows off after 60 days without
+# activity in the repo, which is why this is only a net; "Run workflow" on the
+# Actions tab runs it by hand.
+name: Release check
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Compare the latest release with the live site
+        id: compare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest=$(gh api repos/sharon-xa/cinemakom/releases/latest --jq .tag_name)
+          live=$(curl -fsS --max-time 20 https://cinemakom.sharon-xa.com/version.json | jq -r .tag || echo "unreachable")
+          echo "Latest release: $latest. Live site: $live."
+          if [ -n "$latest" ] && [ "$latest" != "$live" ]; then
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rebuild the site
+        if: steps.compare.outputs.stale == 'true'
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::warning::The site is behind the latest release, but the RENDER_DEPLOY_HOOK secret is not set."
+            exit 0
+          fi
+          curl -fsS -X POST --max-time 30 "$HOOK" > /dev/null
+          echo "Asked Render to rebuild the site."

@@ -1,0 +1,26 @@
+---
+// The in-page release refresh (src/lib/refresh.ts): the site's only
+// JavaScript, under 2 KB, on pages with downloads. The page is complete and
+// correct without it. The tag this build used is read from <html data-release>.
+---
+
+<script>
+  import { refresh } from '../lib/refresh';
+
+  const html = document.documentElement;
+  let storage: Storage | undefined;
+  try {
+    storage = sessionStorage;
+  } catch {
+    // Storage blocked: ask GitHub on every page, still at most once per page.
+  }
+  if (html.dataset.release) {
+    void refresh({
+      root: document,
+      baked: html.dataset.release,
+      locale: html.lang === 'ar' ? 'ar' : 'en',
+      fetch: window.fetch.bind(window),
+      storage,
+    });
+  }
+</script>

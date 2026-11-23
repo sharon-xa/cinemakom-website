@@ -129,7 +129,7 @@ const sums = (targets: Target[]) =>
               <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
               <ul class="notes">{s.androidUpdate.map((x) => <li set:html={x} />)}</ul>
             </details>
-            <details class="more">
+            <details class="more" data-sums>
               <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
               <div class="check">
                 <p>{d.checkNote}</p>
@@ -182,7 +182,7 @@ const sums = (targets: Target[]) =>
           <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <ul class="notes">{s.androidUpdate.map((x) => <li set:html={x} />)}</ul>
         </details>
-        <details class="more">
+        <details class="more" data-sums>
           <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <div class="check">
             <p>{d.checkNote}</p>
@@ -210,7 +210,7 @@ const sums = (targets: Target[]) =>
           <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <p class="pb-2 text-cream-soft">{s.windowsUpdate}</p>
         </details>
-        <details class="more">
+        <details class="more" data-sums>
           <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <div class="check">
             <p>{d.checkNote}</p>
@@ -266,7 +266,7 @@ const sums = (targets: Target[]) =>
           <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <p class="pb-2 text-cream-soft">{s.linuxUpdate}</p>
         </details>
-        <details class="more">
+        <details class="more" data-sums>
           <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <div class="check">
             <p>{d.checkNote}</p>

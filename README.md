@@ -156,17 +156,19 @@ To check a change on phones, build, run `npm run preview`, start a headless Chro
 
 ```
 src/
-  pages/        index.astro (Arabic), en/, tv/ (the TV page), version.json.ts, robots.txt.ts, llms.txt.ts
+  pages/        index.astro (Arabic), en/, tv/ (the TV page), 404.astro, version.json.ts, robots.txt.ts, llms.txt.ts
   views/        Home and Tv: page bodies shared by both languages
   components/   Hero, Bulbs, Devices, Ticket, Programme, Screens, Download, FileLink, Faq, Header, Footer…
   i18n/         ar.ts and en.ts: every string on the site, with the same keys
-  lib/          release.ts (release data), targets.ts, seo.ts, qr.ts, bulbs.ts, screens.ts, format.ts, url.ts
+  lib/          release.ts (release data), targets.ts, refresh.ts (the in-page refresh), seo.ts, qr.ts, bulbs.ts, screens.ts, format.ts, url.ts
   data/         the saved v1.0.0 release (offline builds) and the screenshots' loading previews
   styles/       global.css (Marquee @theme tokens), fonts.css
   assets/       brand SVGs, font subsets, app screenshots
 fonts-src/      source TTFs and their licences
 scripts/        fonts.sh, og.sh, placeholders.sh, lint-rtl.mjs, phone-audit.mjs
-test/           vitest tests: release parsing, dictionaries, structured data, QR codes
+test/           vitest tests: release parsing, the in-page refresh, dictionaries, structured data, QR codes
+render.yaml     the Render static site: build command, headers (caching, CSP), redirects
+.github/workflows/release-check.yml   the 6-hourly safety net for missed releases
 docs/GUIDE.md   the full build brief
 AGENTS.md       rules for contributors and AI coding agents
 ```

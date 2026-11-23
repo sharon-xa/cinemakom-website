@@ -1,0 +1,45 @@
+---
+// dist/404.html: for any address that doesn't exist. A wrong address doesn't
+// say which language the visitor reads, so the page speaks both: Arabic
+// first (the site's default), then English. Not indexed (no canonical).
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import { dict, LOCALES } from '../i18n';
+import { pageUrl } from '../lib/url';
+
+const ar = dict('ar');
+---
+
+<Base locale="ar" title={ar.meta.notFoundTitle} description={ar.notFound.body}>
+  <main id="main" class="wrap flex min-h-[100dvh] flex-col justify-center py-16">
+    <a href={pageUrl('ar', 'home')} aria-label={ar.brand.home} class="mb-12 inline-flex self-start rounded-card p-1">
+      <Logo locale="ar" size={44} />
+    </a>
+    <div class="grid gap-12 md:grid-cols-2 md:gap-16">
+      {
+        LOCALES.map((l) => {
+          const t = dict(l);
+          // One h1 for the page; the English copy is its second-level twin.
+          const H = l === 'ar' ? 'h1' : 'h2';
+          return (
+            <section lang={t.meta.lang} dir={t.meta.dir} aria-labelledby={`nf-${l}`}>
+              <p class="eyebrow mb-3">{t.notFound.eyebrow}</p>
+              <H id={`nf-${l}`} class="section-title">{t.notFound.title}</H>
+              <p class="mt-4 max-w-[44ch] text-cream-soft">{t.notFound.body}</p>
+              <p class="mt-8 flex flex-wrap gap-3">
+                <a href={pageUrl(l, 'home')} class="btn-primary">
+                  {t.notFound.home}
+                </a>
+                <a href={pageUrl(l, 'tv')} class="btn-secondary">
+                  <Icon name="tv" size={18} />
+                  {t.download.devices.tv.name}
+                </a>
+              </p>
+            </section>
+          );
+        })
+      }
+    </div>
+  </main>
+</Base>

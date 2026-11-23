@@ -16,12 +16,14 @@ interface Props {
   /** The title for social cards; defaults to `title`. */
   ogTitle?: string;
   description: string;
+  /** The release tag this page was built with, for the in-page refresh. */
+  release?: string;
   /** Structured data for search engines (src/lib/seo.ts). */
   jsonLd?: unknown;
   /** Extra class on <body>. */
   bodyClass?: string;
 }
-const { locale, page, title, ogTitle = title, description, jsonLd, bodyClass = '' } = Astro.props;
+const { locale, page, title, ogTitle = title, description, release, jsonLd, bodyClass = '' } = Astro.props;
 const t = dict(locale);
 const canonical = page ? absolute(pageUrl(locale, page)) : undefined;
 const ogImage = absolute(url(`og-${locale}.png`));
@@ -29,7 +31,7 @@ const ogLocale = locale === 'ar' ? 'ar_IQ' : 'en_GB';
 ---
 
 <!doctype html>
-<html lang={t.meta.lang} dir={t.meta.dir}>
+<html lang={t.meta.lang} dir={t.meta.dir} data-release={release}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

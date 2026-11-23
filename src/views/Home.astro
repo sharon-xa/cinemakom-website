@@ -8,6 +8,7 @@ import Programme from '../components/Programme.astro';
 import Screens from '../components/Screens.astro';
 import Download from '../components/Download.astro';
 import Faq from '../components/Faq.astro';
+import Refresh from '../components/Refresh.astro';
 import { dict, type Locale } from '../i18n';
 import { getRelease } from '../lib/release';
 import { jsonLd } from '../lib/seo';
@@ -36,7 +37,7 @@ const structured = jsonLd({
 });
 ---
 
-<Base locale={locale} page="home" title={t.meta.title} ogTitle={t.meta.ogTitle} description={t.meta.description} jsonLd={structured}>
+<Base locale={locale} page="home" title={t.meta.title} ogTitle={t.meta.ogTitle} description={t.meta.description} jsonLd={structured} release={release.tag}>
   <Header locale={locale} />
   <main id="main">
     <Hero locale={locale} release={release} />
@@ -47,4 +48,5 @@ const structured = jsonLd({
     <Faq locale={locale} />
   </main>
   <Footer locale={locale} page="home" />
+  <Refresh />
 </Base>
