@@ -23,7 +23,7 @@ const licences = [
 ] as const;
 ---
 
-<footer class="mt-24 border-t border-velvet bg-nav-bar pb-12 sm:mt-32">
+<footer class="mt-8 border-t border-velvet bg-nav-bar pb-12 sm:mt-24 lg:mt-32">
   <Bulbs count={160} />
   <div class="wrap grid gap-10 pt-12 md:grid-cols-[auto_1fr_auto] md:gap-12">
     <Mark size={56} label={t.brand.name} />
@@ -37,11 +37,11 @@ const licences = [
       />
       <p>
         {t.footer.fonts}
-        <span class="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+        <span class="mt-1 flex flex-wrap items-center gap-x-4">
           <span>{t.footer.licences}:</span>
           {
             licences.map(([name, file]) => (
-              <a href={url(`licenses/${file}`)} lang="en" dir="ltr" class="underline decoration-velvet-strong underline-offset-4 hover:text-cream">
+              <a href={url(`licenses/${file}`)} lang="en" dir="ltr" class="inline-flex min-h-11 items-center underline decoration-velvet-strong underline-offset-4 hover:text-cream">
                 {name}
               </a>
             ))

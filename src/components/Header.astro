@@ -20,19 +20,27 @@ const home = pageUrl(locale, 'home');
 >
   {t.nav.skip}
 </a>
-<header class="border-b border-velvet bg-nav-bar">
-  <div class="wrap flex h-16 items-center gap-3 sm:h-18">
+<!-- Pinned while scrolling, so Download and the language are always one tap away. -->
+<header class="sticky top-0 z-40 border-b border-velvet bg-nav-bar">
+  <div class="wrap flex h-16 items-center gap-2 sm:h-18 sm:gap-3">
     <a href={home} aria-label={t.brand.home} class="-ms-1 flex min-h-11 items-center rounded-card p-1">
       <Logo locale={locale} size={36} />
     </a>
     <nav aria-label={t.nav.menu} class="ms-auto flex items-center gap-1 sm:gap-2">
       <a href={`${home}#download`} class="nav-link inline-flex max-sm:hidden">{t.nav.download}</a>
+      <a
+        href={`${home}#download`}
+        aria-label={t.nav.download}
+        class="inline-flex size-11 items-center justify-center rounded-full border border-velvet-strong text-bulb transition-colors hover:bg-booth-raised active:bg-booth-raised sm:hidden"
+      >
+        <Icon name="download" size={20} />
+      </a>
       <a href={`${home}#questions`} class="nav-link inline-flex max-md:hidden">{t.nav.questions}</a>
       <a href={REPO_URL} class="nav-link inline-flex max-md:hidden" aria-label={t.nav.githubLabel}>
         <Icon name="github" size={18} />
         <span>{t.nav.github}</span>
       </a>
-      <LangSwitch locale={locale} page="home" class="ms-1" />
+      <LangSwitch locale={locale} page="home" class="ms-1 max-[22.5rem]:ms-0 max-[22.5rem]:gap-1.5 max-[22.5rem]:px-3" />
     </nav>
   </div>
 </header>
@@ -49,7 +57,8 @@ const home = pageUrl(locale, 'home');
     color: var(--color-dust);
     transition: color 150ms var(--ease-out), background-color 150ms var(--ease-out);
   }
-  .nav-link:hover {
+  .nav-link:hover,
+  .nav-link:active {
     color: var(--color-cream);
     background: var(--color-booth-raised);
   }

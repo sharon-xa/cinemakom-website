@@ -47,6 +47,11 @@ const icons: IconName[] = ['signal', 'download', 'free'];
     --notch-y: 7.5rem;
     border-radius: var(--radius-panel);
     /* Two half-circle bites at the ends, level with the perforation. */
+    /* -webkit- first: Chrome before 120 (all of Android 7) only knows that form. */
+    -webkit-mask:
+      radial-gradient(circle var(--notch) at 0 var(--notch-y), #0000 98%, #000) no-repeat,
+      radial-gradient(circle var(--notch) at 100% var(--notch-y), #0000 98%, #000) no-repeat;
+    -webkit-mask-composite: source-in;
     mask:
       radial-gradient(circle var(--notch) at 0 var(--notch-y), #0000 98%, #000) no-repeat,
       radial-gradient(circle var(--notch) at 100% var(--notch-y), #0000 98%, #000) no-repeat;

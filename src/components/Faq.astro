@@ -11,7 +11,7 @@ const { locale } = Astro.props;
 const t = dict(locale);
 ---
 
-<section id="questions" class="wrap scroll-mt-6 py-16 sm:py-24" aria-labelledby="faq-title">
+<section id="questions" class="wrap py-16 sm:py-24" aria-labelledby="faq-title">
   <div class="grid gap-x-16 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)]">
     <SectionHead id="faq-title" eyebrow={t.faq.eyebrow} title={t.faq.title} />
     <div class="border-b border-velvet">

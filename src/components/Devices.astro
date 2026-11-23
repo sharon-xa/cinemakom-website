@@ -1,7 +1,8 @@
 ---
 // The screen under the sign: the app on a computer, with a phone standing in
 // front of its corner. The phone covers the computer's side menu, which is on
-// the left of the (English) desktop screenshot in both languages.
+// the left of the (English) desktop screenshot in both languages. On phones the
+// phone is the star (that's what most visitors hold), so it is drawn larger.
 import { Picture } from 'astro:assets';
 import { screen } from '../lib/screens';
 import { dict, type Locale } from '../i18n';
@@ -17,27 +18,27 @@ const desktop = screen('desktop-home-en');
 ---
 
 <div class:list={['devices mx-auto grid w-full max-w-[64rem]', cls]}>
-  <div class="desktop w-[88%] justify-self-center rounded-panel border border-velvet bg-booth p-1.5 sm:p-2.5">
+  <div class="desktop rounded-panel border border-velvet bg-booth p-1.5 sm:p-2.5">
     <Picture
       src={desktop}
       alt={t.hero.desktopAlt}
       formats={['avif', 'webp']}
       fallbackFormat="jpg"
       widths={[480, 720, 960, 1280, 1800]}
-      sizes="(min-width: 75rem) 900px, 88vw"
+      sizes="(min-width: 75rem) 900px, (min-width: 37.5rem) 88vw, 84vw"
       loading="eager"
       decoding="async"
       class="block h-auto w-full rounded-card bg-screen"
     />
   </div>
-  <div class="phone w-[24%] self-end rounded-device border border-velvet bg-booth p-1 sm:p-2">
+  <div class="phone self-end rounded-device border border-velvet bg-booth p-1 sm:p-2">
     <Picture
       src={phone}
       alt={t.hero.phoneAlt}
       formats={['avif', 'webp']}
       fallbackFormat="jpg"
       widths={[160, 240, 360, 480]}
-      sizes="(min-width: 75rem) 245px, 24vw"
+      sizes="(min-width: 75rem) 245px, (min-width: 37.5rem) 24vw, 40vw"
       loading="eager"
       fetchpriority="high"
       decoding="async"
@@ -52,13 +53,40 @@ const desktop = screen('desktop-home-en');
   .devices > * {
     grid-area: 1 / 1;
   }
-  .phone {
-    justify-self: start;
-    margin-block-start: 16%;
-  }
-  /* The desktop screenshot is the English (LTR) one in both languages: keep the phone
-     over its side menu (on the left) on Arabic pages too. */
-  .devices:dir(rtl) .phone {
+  /* Phones: a big phone in front, the computer set back behind it. */
+  .desktop {
+    inline-size: 84%;
     justify-self: end;
+    align-self: start;
+  }
+  .phone {
+    inline-size: 40%;
+    justify-self: start;
+    margin-block-start: 12%;
+  }
+  /* From 600 px: the computer is the screen, the phone stands at its corner. */
+  @media (min-width: 37.5rem) {
+    .desktop {
+      inline-size: 88%;
+      justify-self: center;
+    }
+    .phone {
+      inline-size: 24%;
+      margin-block-start: 16%;
+    }
+  }
+  /* The desktop screenshot is the English (LTR) one in both languages: keep
+     the phone over its side menu on Arabic pages too. ([dir] rather than
+     :dir(), which Chrome only has from 120.) */
+  :global([dir='rtl']) .phone {
+    justify-self: end;
+  }
+  :global([dir='rtl']) .desktop {
+    justify-self: start;
+  }
+  @media (min-width: 37.5rem) {
+    :global([dir='rtl']) .desktop {
+      justify-self: center;
+    }
   }
 </style>
