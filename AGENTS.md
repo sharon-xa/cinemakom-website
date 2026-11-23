@@ -3,7 +3,7 @@
 Guidance for AI coding agents (Claude Code, Codex, etc.) working in this repository.
 
 ## What this is
-The website of **Cinemakom** (سينماكم), a free, unofficial Flutter app for Cinemana that works only on Earthlink in Iraq. The site explains the app and gives easy downloads from the app's GitHub Releases (`sharon-xa/cinemakom`). Static **Astro** + **Tailwind CSS v4**, hosted on **GitHub Pages** at `https://sharon-xa.github.io/cinemakom-website/`. The full brief is `docs/GUIDE.md` (the build guide this repo started from): read it before larger changes.
+The website of **Cinemakom** (سينماكم), a free, unofficial Flutter app for Cinemana that works only on Earthlink in Iraq. The site explains the app and gives easy downloads from the app's GitHub Releases (`sharon-xa/cinemakom`). Static **Astro** + **Tailwind CSS v4**, hosted as a **Render** static site at `https://cinemakom.sharon-xa.com/`. The full brief is `docs/GUIDE.md` (the build guide this repo started from): read it before larger changes.
 
 The app's source is at `~/Projects/personal/cinemakom`. Read it for assets and facts (fonts, `branding/`, `docs/DESIGN.md`, `.github/workflows/release.yml`). **Never modify it.**
 

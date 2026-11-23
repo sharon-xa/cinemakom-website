@@ -3,12 +3,11 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
-// The site lives at https://sharon-xa.github.io/cinemakom-website/.
-// Every internal link goes through url() in src/lib/url.ts, so moving to a
-// custom domain means changing `site` and `base` here and nothing else.
+// The site lives at https://cinemakom.sharon-xa.com/ (a Render static site).
+// Every internal link goes through url() in src/lib/url.ts, so another domain
+// or a base path is a change to `site` (and `base`) here and nothing else.
 export default defineConfig({
-  site: 'https://sharon-xa.github.io',
-  base: '/cinemakom-website',
+  site: 'https://cinemakom.sharon-xa.com',
   trailingSlash: 'always',
   output: 'static',
   build: {

@@ -31,7 +31,7 @@ The owner's brief, in short:
 |---|---|
 | Stack | **Astro** (static output) + **Tailwind CSS v4**. No UI framework (no React/Vue/Svelte islands). Extra libraries only when they clearly pay for themselves |
 | Repo | A **separate repo**: `sharon-xa/cinemakom-website` (the owner creates it; §10) |
-| Hosting | **GitHub Pages**, deployed by GitHub Actions. Address: `https://sharon-xa.github.io/cinemakom-website/` |
+| Hosting | **Render** static site, built by Render from `main`. Address: `https://cinemakom.sharon-xa.com/` (the owner's domain). *Changed by the owner on 2026-11-23; this guide first planned GitHub Pages at `sharon-xa.github.io/cinemakom-website/`* |
 | Languages | **Arabic first** at `/`, **English** at `/en/`. Every page exists in both. A visible switch on every page. No automatic redirect by browser language |
 | Download source | The app repo's **GitHub Releases** (`sharon-xa/cinemakom`). The site never hosts the files itself |
 | Device choice | The visitor picks the device. No auto-detection, no reordering by user agent |
@@ -119,7 +119,7 @@ The owner's brief, in short:
   Match each target by suffix (`-android-arm64-v8a.apk`, `-android-armeabi-v7a.apk`, `-android-x86_64.apk`, `-windows-x64.zip`, `-linux-x64.tar.gz`). Use `browser_download_url` as the link. Skip anything else.
 - Also download `SHA256SUMS.txt` (when present) and fill in `sha256` per file.
 - **Failure rules:**
-  - **In CI** (`process.env.CI`): if the API call fails, or the release lacks any **Android** file, the build **fails**. GitHub Pages then keeps serving the last good site. Never deploy a site with missing or broken download links.
+  - **In CI** (`process.env.CI`): if the API call fails, or the release lacks any **Android** file, the build **fails**. Render then keeps serving the last good deploy. (Render sets `CI=true` during builds.) Never deploy a site with missing or broken download links.
   - A missing Windows or Linux file is not fatal: that device card says "Not in this release yet" and links to the releases page.
   - **Locally, offline:** fall back to `src/data/release.sample.json` (a real API answer saved once; the v1.0.0 one is perfect because it includes the iOS/macOS assets to ignore), and show a dev-only "sample release data" note.
 - Load it **once per build** and share it with every page (a module-level promise is enough).
@@ -129,16 +129,16 @@ Show the version, date (formatted per locale, **Western digits 0–9 in Arabic t
 
 ### 5.2 Redeploys
 
-`.github/workflows/deploy.yml` in the site repo deploys to Pages (`actions/upload-pages-artifact` + `actions/deploy-pages`; use their current major versions). Triggers:
+Render builds and serves the site. `render.yaml` at the repo root (a Render Blueprint) describes the static site: `runtime: static`, build command `npm ci && npm run check && npm test && npm run build`, `staticPublishPath: dist`, response headers (long caching for the hashed `/_astro/*` files, basic security headers) and redirects (`/tv` → `/tv/`, `/en/tv` → `/en/tv/`). Node comes from `.nvmrc`. Pull-request previews off. What starts a build:
 
 | Trigger | Why |
 |---|---|
-| `push` to `main` | Site changes |
-| `repository_dispatch` (type `cinemakom-release`) | **The main path:** the app's release workflow pings the site the moment a release is published (owner step, Appendix B). Needs one token, set up once |
-| `schedule` every 6 hours | Safety net if the ping was missed. A first job compares `releases/latest`'s `tag_name` with the live `/version.json` and skips the build when they match, so it costs seconds. *GitHub turns off scheduled workflows after 60 days without repository activity, which is why it's only a net* |
-| `workflow_dispatch` | A manual "Run workflow" button |
+| Push to `main` | Site changes (Render's auto-deploy) |
+| The Render **deploy hook** | **The main path:** the app's release workflow requests the site's secret deploy-hook URL the moment a release is published (owner step, Appendix B). No token to renew |
+| `schedule` every 6 hours | Safety net if the ping was missed: `.github/workflows/release-check.yml` in the site repo compares `releases/latest`'s `tag_name` with the live `/version.json` and requests the deploy hook only when they differ, so it costs seconds. *GitHub turns off scheduled workflows after 60 days without repository activity, which is why it's only a net* |
+| Manual | Render's "Manual Deploy" button, or the check workflow's "Run workflow" button |
 
-The build step runs `npm ci`, `npm run check`, `npm test`, `npm run build` with `GITHUB_TOKEN: ${{ github.token }}`. Permissions: `contents: read`, `pages: write`, `id-token: write`. Concurrency group `pages`, don't cancel in progress.
+Render's build machines share IP addresses, so GitHub's anonymous limit (60 API requests per hour per IP) can run out: the Render service gets a `GITHUB_TOKEN` environment variable (owner step) so the release fetch never hits it.
 
 ### 5.3 Why links point at exact files
 
@@ -193,7 +193,7 @@ Build the picker from **radio inputs** (one `name`, real `<label>`s) and reveal 
 - "Other versions" as a `<details>` with the alternatives, each with its one-line reason.
 - "How to install" as a `<details>` with short numbered steps:
   - **Android:** open the downloaded file; if asked, allow your browser to "Install unknown apps"; if Play Protect warns, choose *Install anyway* (it warns about any app that isn't from the Play Store). **Updating:** download the new version and install it over the old one; favorites, history and downloads stay. *One exception:* anyone who has **v1.0.0** must uninstall it once before installing a newer version (v1.0.0 was signed with a temporary key; every release after it uses the permanent one). Say this in the update steps and in the FAQ while v1.0.0 users may still be around.
-  - **Android TV:** the panel shows the short TV address in large type (`sharon-xa.github.io/cinemakom-website/tv`) and three ways in:
+  - **Android TV:** the panel shows the short TV address in large type (`cinemakom.sharon-xa.com/tv`) and three ways in:
     1. *Downloader* app (by AFTVnews, free on the TV's Play Store): type the address, then pick the TV file on the page that opens.
     2. A USB stick: download the file on a computer, copy it over, open it with the TV's file manager.
     3. A file-sending app such as *Send Files to TV* on the phone and the TV.
@@ -336,7 +336,7 @@ Check the result at 360, 768 and 1440 px wide, in **both languages**, and adjust
 ## 10. Hosting, i18n and RTL
 
 ### 10.1 Astro config
-- `site: 'https://sharon-xa.github.io'`, `base: '/cinemakom-website'`, `trailingSlash: 'always'`. **Every internal link and asset URL goes through `import.meta.env.BASE_URL`** (write one `url()` helper and use it everywhere), so moving to a custom domain later is a one-line change.
+- `site: 'https://cinemakom.sharon-xa.com'` (no `base`: the site is at the domain's root), `trailingSlash: 'always'`. **Every internal link and asset URL goes through `import.meta.env.BASE_URL`** (write one `url()` helper and use it everywhere), so moving to a custom domain later is a one-line change.
 - `i18n: { locales: ['ar', 'en'], defaultLocale: 'ar', routing: { prefixDefaultLocale: false } }`.
 - `<html lang="ar" dir="rtl">` on Arabic pages, `lang="en" dir="ltr"` on English. `hreflang` alternates (+ `x-default` → Arabic) on every page. The switch links to the same page in the other language.
 - Per-language `<title>`, meta description and Open Graph tags. One 1200 × 630 `og.png` per language, made from an SVG with `rsvg-convert` (`scripts/og.sh`), committed.
@@ -348,7 +348,7 @@ Check the result at 360, 768 and 1440 px wide, in **both languages**, and adjust
 - Numbers: Western digits (0–9) in Arabic too. Format sizes and dates with `Intl` using `ar-IQ-u-nu-latn` / `en-GB`.
 
 ### 10.3 Deploy
-GitHub Pages from Actions (§5.2). A custom domain is optional and later (the owner decides); with `base` behind one helper it's trivial.
+A Render static site (§5.2) on the owner's subdomain `cinemakom.sharon-xa.com`. Render issues the TLS certificate. After the first deploy, check that a missing page gets `404.html` and that `/tv` reaches `/tv/`; add routes in `render.yaml` if not.
 
 ---
 
@@ -369,9 +369,10 @@ Each milestone ends with `npm run check`, `npm test`, `npm run build`, `npm run 
 ## 12. Owner steps (tell the owner at the end; don't do them yourself)
 
 1. Create the **public** repo `sharon-xa/cinemakom-website` on GitHub (empty). Then you (the agent) may add the remote and push, once the owner says so.
-2. Repo → **Settings → Pages → Source: GitHub Actions.**
-3. **Instant updates (recommended):** create a fine-grained token at GitHub → Settings → Developer settings → Fine-grained tokens: repository access **only `cinemakom-website`**, permission **Contents: Read and write**, the longest expiry offered (GitHub emails before it expires). In the app repo: Settings → Secrets → Actions → new secret `SITE_DISPATCH_TOKEN`. Then add the step in **Appendix B** to the app's `release.yml`. Without this, the 6-hourly check and the runtime refresh still update the site, just later.
-4. Proofread the Arabic copy.
+2. **Render:** New → Blueprint, pick `sharon-xa/cinemakom-website` (it reads `render.yaml`). In the service's Environment, add `GITHUB_TOKEN`: a fine-grained GitHub token with **Public repositories (read-only)** access and no permissions, used only to raise the API rate limit during builds.
+3. **The domain:** in the service's Settings → Custom Domains, add `cinemakom.sharon-xa.com`. At the DNS provider of `sharon-xa.com`, add a `CNAME` record `cinemakom` → the service's `….onrender.com` address. Render issues the certificate.
+4. **Instant updates (recommended):** copy the service's **Deploy Hook** URL (Settings). Store it as the Actions secret `RENDER_DEPLOY_HOOK` in **both** the app repo (for Appendix B) and the site repo (for the 6-hourly check). Then add the step in **Appendix B** to the app's `release.yml`. Without it, the 6-hourly check and the runtime refresh still update the site, just later. The hook URL is a secret: anyone with it can start builds.
+5. Proofread the Arabic copy.
 
 ---
 
@@ -383,7 +384,7 @@ Each milestone ends with `npm run check`, `npm test`, `npm run build`, `npm run 
 Guidance for AI coding agents (Claude Code, Codex, etc.) working in this repository.
 
 ## What this is
-The website of **Cinemakom** (سينماكم), a free, unofficial Flutter app for Cinemana that works only on Earthlink in Iraq. The site explains the app and gives easy downloads from the app's GitHub Releases (`sharon-xa/cinemakom`). Static **Astro** + **Tailwind CSS v4**, hosted on **GitHub Pages** at `https://sharon-xa.github.io/cinemakom-website/`. The full brief is `docs/GUIDE.md` (the build guide this repo started from): read it before larger changes.
+The website of **Cinemakom** (سينماكم), a free, unofficial Flutter app for Cinemana that works only on Earthlink in Iraq. The site explains the app and gives easy downloads from the app's GitHub Releases (`sharon-xa/cinemakom`). Static **Astro** + **Tailwind CSS v4**, hosted as a **Render** static site at `https://cinemakom.sharon-xa.com/`. The full brief is `docs/GUIDE.md` (the build guide this repo started from): read it before larger changes.
 
 The app's source is at `~/Projects/personal/cinemakom`. Read it for assets and facts (fonts, `branding/`, `docs/DESIGN.md`, `.github/workflows/release.yml`). **Never modify it.**
 
@@ -446,8 +447,8 @@ Append to the end of the `publish` job's `steps` in `~/Projects/personal/cinemak
         if: ${{ !contains(github.ref_name, '-') }}   # prereleases don't change the site
         continue-on-error: true                       # a failed ping never fails a release
         env:
-          GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
-        run: gh api repos/sharon-xa/cinemakom-website/dispatches -f event_type=cinemakom-release
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -fsS -X POST "$HOOK" > /dev/null
 ```
 
 **Android updates (fixed 2026-11-23):** from the next release on, every APK is signed with the same permanent key, so updates install over the old version and keep the user's data. Only v1.0.0 was signed with a temporary key, so its users uninstall once (§6.4).

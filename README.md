@@ -10,9 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="https://sharon-xa.github.io/cinemakom-website/"><strong>العربية</strong></a>
+  <a href="https://cinemakom.sharon-xa.com/"><strong>العربية</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://sharon-xa.github.io/cinemakom-website/en/"><strong>English</strong></a>
+  <a href="https://cinemakom.sharon-xa.com/en/"><strong>English</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/sharon-xa/cinemakom">The app</a>
   &nbsp;·&nbsp;
@@ -33,11 +33,11 @@
 
 ### حمّل التطبيق
 
-افتح **[sharon-xa.github.io/cinemakom-website](https://sharon-xa.github.io/cinemakom-website/)** واختر الجهاز الذي ستشاهد عليه. يعرض الموقع دائماً أحدث إصدار، مع خطوات التثبيت لكل جهاز.
+افتح **[cinemakom.sharon-xa.com](https://cinemakom.sharon-xa.com/)** واختر الجهاز الذي ستشاهد عليه. يعرض الموقع دائماً أحدث إصدار، مع خطوات التثبيت لكل جهاز.
 
 على التلفاز، اكتب هذا العنوان في تطبيق Downloader أو في المتصفح:
 
-<p dir="ltr" align="right"><code>sharon-xa.github.io/cinemakom-website/tv</code></p>
+<p dir="ltr" align="right"><code>cinemakom.sharon-xa.com/tv</code></p>
 
 | الجهاز | الملف |
 | --- | --- |
@@ -70,12 +70,12 @@
 
 ### Download
 
-Open **[sharon-xa.github.io/cinemakom-website/en](https://sharon-xa.github.io/cinemakom-website/en/)** and pick the device you'll watch on. The site always offers the newest release, with install steps for each device.
+Open **[cinemakom.sharon-xa.com/en](https://cinemakom.sharon-xa.com/en/)** and pick the device you'll watch on. The site always offers the newest release, with install steps for each device.
 
 On a TV, type this address into the Downloader app or the TV's browser:
 
 ```
-sharon-xa.github.io/cinemakom-website/tv
+cinemakom.sharon-xa.com/tv
 ```
 
 | Device | File |
@@ -101,17 +101,17 @@ sharon-xa.github.io/cinemakom-website/tv
 
 ## For developers
 
-A static site built with [Astro](https://astro.build) and [Tailwind CSS v4](https://tailwindcss.com), hosted on GitHub Pages. Arabic is the default language at `/` (right to left); English is at `/en/`. The app itself lives in [sharon-xa/cinemakom](https://github.com/sharon-xa/cinemakom).
+A static site built with [Astro](https://astro.build) and [Tailwind CSS v4](https://tailwindcss.com), hosted as a [Render](https://render.com) static site at `cinemakom.sharon-xa.com`. Arabic is the default language at `/` (right to left); English is at `/en/`. The app itself lives in [sharon-xa/cinemakom](https://github.com/sharon-xa/cinemakom).
 
 ### How it stays up to date
 
 The site never hardcodes a version, file name, size or link.
 
 1. **At build time**, `src/lib/release.ts` reads the latest release from the GitHub API, matches each file by the end of its name (`-android-arm64-v8a.apk`, `-windows-x64.zip`…) and reads `SHA256SUMS.txt` for the checksums. It also writes `/version.json`.
-2. **The app's release workflow** pings this repo (`repository_dispatch`) when a release is published, and the site rebuilds within minutes. A check every 6 hours catches a missed ping by comparing the latest tag with the live `/version.json`.
+2. **The app's release workflow** calls this site's Render deploy hook when a release is published, and the site rebuilds within minutes. A GitHub Actions check every 6 hours catches a missed call by comparing the latest tag with the live `/version.json`.
 3. **In the browser**, a small inline script (under 2 KB) asks GitHub for the latest release and updates the links if the page is out of date. The page is fully correct without it.
 
-In CI, a failed fetch or a release with no Android files **fails the build**, so a broken page is never deployed. Locally, the build falls back to a saved copy of v1.0.0 (`src/data/release.sample.json`) and says so on the page.
+In CI (Render sets `CI=true`), a failed fetch or a release with no Android files **fails the build**, so Render keeps serving the last good version. Locally, the build falls back to a saved copy of v1.0.0 (`src/data/release.sample.json`) and says so on the page.
 
 ### Principles
 
@@ -127,7 +127,7 @@ Needs Node 26 (`.nvmrc`).
 
 ```bash
 npm install
-npm run dev        # dev server at http://localhost:4321/cinemakom-website/
+npm run dev        # dev server at http://localhost:4321/
 npm run check      # type check (astro check)
 npm test           # unit tests (vitest)
 npm run lint:rtl   # fails on physical left/right classes and properties
