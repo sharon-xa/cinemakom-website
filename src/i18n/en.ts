@@ -145,7 +145,7 @@ const en = {
     devices: {
       phone: { name: 'Android phone or tablet', note: 'Android 7.0 or newer' },
       tv: { name: 'Android TV, Google TV or TV box', note: 'Android 7.0 or newer' },
-      windows: { name: 'Windows computer', note: 'Windows 10 or 11, 64-bit' },
+      windows: { name: 'Windows computer', note: '64-bit Windows, tested on Windows 11' },
       linux: { name: 'Linux computer', note: '64-bit (x86-64)' },
     },
     buttons: {
@@ -154,6 +154,8 @@ const en = {
       tv2: 'Download Option 2',
       windows: 'Download for Windows',
       linux: 'Download for Linux',
+      windowsZip: 'Download the portable zip',
+      appImage: 'Download the AppImage',
     },
     tv: {
       option1: 'Option 1',
@@ -175,6 +177,7 @@ const en = {
     allVersions: 'All versions on GitHub',
     install: 'How to install',
     update: 'Updating',
+    remove: 'Uninstalling',
     check: 'Check the file',
     checkNote:
       'If you want to be sure the file arrived whole, compare its SHA-256 checksum with this one.',
@@ -209,8 +212,21 @@ const en = {
       windows: [
         'Right-click the downloaded zip and choose <em>Extract all</em>. Put it in a folder you’ll keep, such as <code dir="ltr">Documents\\Cinemakom</code>. Keep all its files together: the app needs every one of them.',
         'Open <code dir="ltr">cinemakom.exe</code> in that folder.',
-        'If you see <em>Windows protected your PC</em>, choose <em>More info</em>, then <em>Run anyway</em>. Windows shows this for apps without a paid signature.',
       ],
+      smartScreen:
+        'If you see <em>Windows protected your PC</em>, choose <em>More info</em>, then <em>Run anyway</em>. Windows shows this for apps without a paid signature.', // html
+      windowsSetup: [
+        'Open the file you downloaded.',
+        'Follow the setup, in English or Arabic. It installs for your user only (no admin rights needed) and adds Cinemakom to the Start menu, and to the desktop if you tick that box.',
+      ],
+      windowsPortable: 'Portable version (zip)',
+      windowsPortableWhy: 'Nothing to install: extract it and run it from its folder.',
+      windowsSetupUpdate:
+        'Download the new installer here and open it: it installs over the old version. If Cinemakom is open, the installer offers to close it: keep that choice and continue. Your favorites, history and downloads stay.',
+      windowsFromV1:
+        '<strong>Coming from version 1.0.0?</strong> Install the new version, then delete the old zip folder. Your favorites and history should carry over: they’re stored outside that folder.', // html
+      windowsRemove:
+        'Open <em>Settings</em> → <em>Apps</em> → <em>Installed apps</em> and uninstall Cinemakom. It asks before deleting your library and settings, and never deletes the videos you downloaded. The portable version: delete its folder.', // html
       windowsUpdate:
         'Close Cinemakom, then extract the new zip over the old folder. Your favorites and history are stored elsewhere, so they stay.',
       linuxDeps: 'Install libmpv, which plays the video:',
@@ -218,6 +234,28 @@ const en = {
       linuxDesktop: 'Optional: add Cinemakom to your app menu.',
       linuxDesktopNote: 'This keeps the app in <code dir="ltr">~/.local/opt/cinemakom</code> and adds its icon and menu entry.',
       linuxUpdate: 'Close Cinemakom, then run the extract command again with the new file: it replaces the old version. Your favorites and history stay.',
+      linuxScriptLead: 'Open a terminal and run this. It installs Cinemakom for your user, with no <code dir="ltr">sudo</code>:', // html
+      linuxScriptAfter:
+        'Cinemakom then appears in your app menu, or run <code dir="ltr">cinemakom</code>. The command downloads the AppImage below, checks its checksum and sets it up: nothing else to install.', // html
+      linuxNeeds:
+        'For 64-bit (x86-64) Linux from 2022 on (glibc 2.35 or newer), such as Ubuntu 22.04+, Debian 12+, Fedora or Arch. It brings its own video player, so there’s nothing else to install, and uses the GPU to decode video where it can (tested on NVIDIA).',
+      linuxAppImage: 'Or use the AppImage',
+      linuxChmod: 'Make it executable and run it:',
+      linuxAppImageNotes: [
+        'If it doesn’t start, add <code dir="ltr">--appimage-extract-and-run</code> to the end of the command, or use the install command, which needs no FUSE.',
+        'AppImage managers such as Gear Lever, AppImageLauncher and AppImageUpdate can keep it up to date, downloading only what changed.',
+      ],
+      linuxScriptUpdate:
+        'Close Cinemakom, then run the same command again: it replaces the old version with the new one. Your favorites, history and downloads stay.',
+      linuxAppImageUpdate:
+        'With the AppImage: let your AppImage manager update it, or download the new one here and make it executable.',
+      linuxFromTar:
+        '<strong>Coming from version 1.0.0 (the tar.gz)?</strong> Install with the command, then delete the old copy: <code dir="ltr">rm -rf ~/.local/opt/cinemakom</code>. The new menu entry replaces the old one, and your favorites, history and downloads carry over.', // html
+      linuxScriptRemove: 'Run:',
+      linuxScriptRemoveNote:
+        'It removes the app, its menu entry and the <code dir="ltr">cinemakom</code> command. Your library and downloads stay.', // html
+      linuxAppImageRemove: 'With the AppImage: delete the file. Your library and downloads stay.',
+      linuxScriptChecks: 'The install command checks the download against these checksums by itself.',
       distros: {
         debianNew: 'Debian 12+, Ubuntu 24.04+, Mint 22+',
         debianOld: 'Debian 11, Ubuntu 22.04, Mint 21',
@@ -257,7 +295,7 @@ const en = {
       },
       {
         q: 'How do I update?',
-        a: 'Download the new version from this page and install it over the old one. Your favorites, history and downloads stay. If you have version 1.0.0, uninstall it once first (it was signed with a temporary key). This page always offers the newest version.',
+        a: 'Download the new version from this page and install it over the old one. Your favorites, history and downloads stay. On Android, if you have version 1.0.0, uninstall it once first (it was signed with a temporary key). This page always offers the newest version.',
       },
       {
         q: 'Where do I report a problem?',

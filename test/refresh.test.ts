@@ -23,7 +23,7 @@ function page() {
     phone: el({ 'data-target': 'android-arm64-v8a', href: 'old-phone' }),
     tv: el({ 'data-target': 'android-armeabi-v7a', href: 'old-tv' }),
     size: el({ 'data-target-size': 'android-arm64-v8a' }, '39 MB'),
-    name: el({ 'data-target-name': 'linux-x64' }, 'cinemakom-v1.0.0-linux-x64.tar.gz'),
+    name: el({ 'data-target-name': 'windows-x64' }, 'cinemakom-v1.0.0-windows-x64.zip'),
     sums: el({ 'data-sums': '' }),
     version: el({ 'data-version': 'version' }, '1.0.0'),
     tag: el({ 'data-version': 'tag' }, 'v1.0.0'),
@@ -59,11 +59,11 @@ const memory = () => {
 const ok = (json: unknown) => vi.fn(async () => new Response(JSON.stringify(json), { status: 200 })) as unknown as typeof fetch;
 
 describe('parse', () => {
-  it('finds the five files of a release and ignores the rest (iOS, macOS, checksums)', () => {
+  it('finds the files of a release and ignores the rest (iOS, macOS, checksums, the old tarball)', () => {
     const r = parse(sample)!;
     expect(r.tag).toBe('v1.0.0');
     expect(Object.keys(r.files).sort()).toEqual(
-      ['android-arm64-v8a', 'android-armeabi-v7a', 'android-x86_64', 'linux-x64', 'windows-x64'].sort(),
+      ['android-arm64-v8a', 'android-armeabi-v7a', 'android-x86_64', 'windows-x64'].sort(),
     );
   });
 
@@ -100,7 +100,7 @@ describe('apply', () => {
     );
     expect(nodes.tv.attrs.href).toMatch(/v1\.1\.0-android-armeabi-v7a\.apk$/);
     expect(nodes.size.textContent).toBe('40 MB');
-    expect(nodes.name.textContent).toBe('cinemakom-v1.1.0-linux-x64.tar.gz');
+    expect(nodes.name.textContent).toBe('cinemakom-v1.1.0-windows-x64.zip');
     expect(nodes.sums.hidden).toBe(true);
     expect([nodes.version.textContent, nodes.tag.textContent, nodes.date.textContent]).toEqual(['1.1.0', 'v1.1.0', '1 Dec 2026']);
   });

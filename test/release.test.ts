@@ -7,9 +7,11 @@ import {
   sumsUrl,
   missingRequired,
   loadRelease,
+  sampleReleaseV2,
+  targetOf,
   ReleaseDataError,
 } from '../src/lib/release';
-import { TARGETS, targetOf } from '../src/lib/targets';
+import { TARGETS, targetOf as browserTargetOf } from '../src/lib/targets';
 import { formatDate, formatSize } from '../src/lib/format';
 
 const sums = parseSums(sampleSums);
@@ -18,14 +20,24 @@ const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 describe('targetOf', () => {
   it('matches by suffix whatever the tag', () => {
     expect(targetOf('cinemakom-v9.9.9-beta1-android-arm64-v8a.apk')).toBe('android-arm64-v8a');
-    expect(targetOf('cinemakom-v1.0.0-linux-x64.tar.gz')).toBe('linux-x64');
+    expect(targetOf('cinemakom-v1.0.0-linux-x64.tar.gz')).toBe('linux-x64-tar');
     expect(targetOf('cinemakom-v1.0.0-windows-x64.zip')).toBe('windows-x64');
+    expect(targetOf('cinemakom-v2.0.0-windows-x64-setup.exe')).toBe('windows-x64-setup');
+    expect(targetOf('cinemakom-v2.0.0-linux-x64.AppImage')).toBe('linux-x64');
   });
   it('ignores everything else', () => {
     expect(targetOf('cinemakom-v1.0.0-ios-unsigned.ipa')).toBeUndefined();
     expect(targetOf('cinemakom-v1.0.0-macos.dmg')).toBeUndefined();
     expect(targetOf('SHA256SUMS.txt')).toBeUndefined();
     expect(targetOf('cinemakom-v1.0.0-android-arm64-v8a.apk.sig')).toBeUndefined();
+    expect(targetOf('cinemakom-v2.0.0-linux-x64.AppImage.zsync')).toBeUndefined();
+    expect(targetOf('cinemakom-v2.0.0-linux-x64-sources.tar')).toBeUndefined();
+    expect(targetOf('cinemakom-v2.0.0-windows-x64.exe')).toBeUndefined();
+    expect(targetOf('install.sh')).toBeUndefined();
+  });
+  it('leaves the tarball to the build: the browser copy never needs it', () => {
+    expect(browserTargetOf('cinemakom-v1.0.0-linux-x64.tar.gz')).toBeUndefined();
+    expect(browserTargetOf('cinemakom-v2.0.0-windows-x64-setup.exe')).toBe('windows-x64-setup');
   });
 });
 
@@ -40,8 +52,11 @@ describe('pickAssets on the saved v1.0.0 answer', () => {
     expect(r.allReleasesUrl).toBe('https://github.com/sharon-xa/cinemakom/releases');
   });
 
-  it('finds all five targets and nothing else', () => {
-    expect(Object.keys(r.files).sort()).toEqual([...TARGETS].sort());
+  it('finds its five files and nothing else', () => {
+    expect(Object.keys(r.files).sort()).toEqual(
+      ['android-arm64-v8a', 'android-armeabi-v7a', 'android-x86_64', 'linux-x64-tar', 'windows-x64'].sort(),
+    );
+    expect(r.installScript).toBe(false);
     const names = Object.values(r.files).map((f) => f!.name);
     expect(names.some((n) => /ios|macos|SHA256/.test(n))).toBe(false);
   });
@@ -55,14 +70,33 @@ describe('pickAssets on the saved v1.0.0 answer', () => {
     });
     expect(r.files['android-armeabi-v7a']!.bytes).toBe(37606128);
     expect(r.files['windows-x64']!.sha256).toBe('4109e068caf41c8915a9d7641b3da614a8a2377a086e7d96ff9bb3107e73fa26');
-    expect(r.files['linux-x64']!.bytes).toBe(14118851);
+    expect(r.files['linux-x64-tar']!.bytes).toBe(14118851);
     expect(missingRequired(r)).toEqual([]);
   });
 
   it('works without checksums', () => {
     const bare = pickAssets(sample);
-    expect(bare.files['linux-x64']!.sha256).toBeUndefined();
+    expect(bare.files['linux-x64-tar']!.sha256).toBeUndefined();
     expect(sumsUrl(sample)).toMatch(/\/SHA256SUMS\.txt$/);
+  });
+});
+
+describe('pickAssets on a v2.0.0-style release', () => {
+  const r = sampleReleaseV2();
+
+  it('finds the installer, the zip, the AppImage and install.sh, and nothing else', () => {
+    expect(Object.keys(r.files).sort()).toEqual(TARGETS.filter((t) => t !== 'linux-x64-tar').sort());
+    expect(r.files['windows-x64-setup']!.name).toBe('cinemakom-v2.0.0-windows-x64-setup.exe');
+    expect(r.files['linux-x64']!.name).toBe('cinemakom-v2.0.0-linux-x64.AppImage');
+    expect(r.files['linux-x64']!.sha256).toBe('a'.repeat(64));
+    expect(r.installScript).toBe(true);
+    expect(missingRequired(r)).toEqual([]);
+  });
+
+  it('only trusts an install.sh hosted on github.com', () => {
+    const json = clone(sample);
+    json.assets.push({ ...json.assets[0]!, name: 'install.sh', browser_download_url: 'https://evil.example/install.sh' });
+    expect(pickAssets(json).installScript).toBe(false);
   });
 });
 
@@ -71,7 +105,7 @@ describe('pickAssets on other answers', () => {
     const json = clone(sample);
     json.assets = json.assets.filter((a) => !a.name.endsWith('-linux-x64.tar.gz'));
     const r = pickAssets(json, sums);
-    expect(r.files['linux-x64']).toBeUndefined();
+    expect(r.files['linux-x64-tar']).toBeUndefined();
     expect(r.files['windows-x64']).toBeDefined();
     expect(missingRequired(r)).toEqual([]);
   });

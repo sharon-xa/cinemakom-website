@@ -14,7 +14,7 @@ import SectionHead from './SectionHead.astro';
 import Icon, { type IconName } from './Icon.astro';
 import FileLink from './FileLink.astro';
 import { dict, fill, type Locale } from '../i18n';
-import { ISSUES_URL, type Release, type Target } from '../lib/release';
+import { INSTALL_SCRIPT_URL, ISSUES_URL, type Release, type Target } from '../lib/release';
 import { formatDate } from '../lib/format';
 import { absolute, pageUrl, tvAddress } from '../lib/url';
 import { qrSvg } from '../lib/qr';
@@ -32,8 +32,8 @@ type Device = 'phone' | 'tv' | 'windows' | 'linux';
 const devices: { key: Device; id: string; icon: IconName; targets: Target[] }[] = [
   { key: 'phone', id: 'android', icon: 'phone', targets: ['android-arm64-v8a', 'android-armeabi-v7a', 'android-x86_64'] },
   { key: 'tv', id: 'tv', icon: 'tv', targets: ['android-armeabi-v7a', 'android-arm64-v8a'] },
-  { key: 'windows', id: 'windows', icon: 'monitor', targets: ['windows-x64'] },
-  { key: 'linux', id: 'linux', icon: 'terminal', targets: ['linux-x64'] },
+  { key: 'windows', id: 'windows', icon: 'monitor', targets: ['windows-x64-setup', 'windows-x64'] },
+  { key: 'linux', id: 'linux', icon: 'terminal', targets: ['linux-x64', 'linux-x64-tar'] },
 ];
 
 const version = fill(t.hero.caption, {
@@ -43,8 +43,20 @@ const version = fill(t.hero.caption, {
 // The TV address breaks only before its path, never inside the host name.
 const [tvHost, ...tvPath] = tvAddress().split('/');
 const qr = await qrSvg(absolute(pageUrl(locale, 'home', 'android')), d.qrAlt);
-const windowsFile = release.files['windows-x64']?.name ?? 'cinemakom-<version>-windows-x64.zip';
-const linuxFile = release.files['linux-x64']?.name ?? 'cinemakom-<version>-linux-x64.tar.gz';
+// Which install steps to show follows the release's files: v1.0.0 has a zip and
+// a tarball; from v2.0.0 there's an installer, an AppImage and install.sh.
+// Once v1.0.0 is no longer the latest release, drop the tarball branch.
+const winSetup = Boolean(release.files['windows-x64-setup']);
+const windowsFile =
+  release.files[winSetup ? 'windows-x64-setup' : 'windows-x64']?.name ?? 'cinemakom-<version>-windows-x64-setup.exe';
+const appImage = release.files['linux-x64'];
+const linuxTar = !appImage && Boolean(release.files['linux-x64-tar']);
+const linuxScript = release.installScript && Boolean(appImage);
+const appImageFile = appImage?.name ?? 'cinemakom-<version>-linux-x64.AppImage';
+const linuxInstall = `curl -fsSL ${INSTALL_SCRIPT_URL} | bash`;
+const linuxUninstall = `curl -fsSL ${INSTALL_SCRIPT_URL} | bash -s -- --uninstall`;
+const linuxChmod = `chmod +x ${appImageFile}\n./${appImageFile}`;
+const linuxFile = linuxTar ? release.files['linux-x64-tar']!.name : appImageFile;
 const desktopFile = 'io.github.sharon_xa.cinemakom.desktop';
 const linuxRun = [`mkdir -p ~/.local/opt`, `tar -xzf ${linuxFile} -C ~/.local/opt`, `~/.local/opt/cinemakom/cinemakom`].join('\n');
 const linuxDesktop = [
@@ -201,15 +213,57 @@ const sums = (targets: Target[]) =>
       {/* ---------- Windows ---------- */}
       <article id="windows" class="panel panel-windows" aria-labelledby="h-windows">
         <h3 id="h-windows" class="panel-title"><Icon name="monitor" size={24} />{d.devices.windows.name}</h3>
-        <FileLink locale={locale} release={release} target="windows-x64" label={d.buttons.windows} primary />
-        <details class="more" open>
-          <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
-          <ol class="steps">{s.windows.map((x) => <li set:html={x} />)}</ol>
-        </details>
-        <details class="more">
-          <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
-          <p class="pb-2 text-cream-soft">{s.windowsUpdate}</p>
-        </details>
+        {
+          winSetup ? (
+            <>
+              <FileLink locale={locale} release={release} target="windows-x64-setup" label={d.buttons.windows} primary />
+              <details class="more" open>
+                <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <ol class="steps">
+                  <li set:html={s.windowsSetup[0]} />
+                  <li set:html={s.smartScreen} />
+                  <li set:html={s.windowsSetup[1]} />
+                </ol>
+              </details>
+              <details class="more">
+                <summary>{s.windowsPortable}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <p class="mb-4 text-cream-soft">{s.windowsPortableWhy}</p>
+                <FileLink locale={locale} release={release} target="windows-x64" label={d.buttons.windowsZip} />
+                <ol class="steps mt-4">
+                  {s.windows.map((x) => <li set:html={x} />)}
+                  <li set:html={s.smartScreen} />
+                </ol>
+              </details>
+              <details class="more">
+                <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <ul class="notes">
+                  <li set:html={s.windowsSetupUpdate} />
+                  <li><strong>{s.windowsPortable}:</strong> {s.windowsUpdate}</li>
+                  <li set:html={s.windowsFromV1} />
+                </ul>
+              </details>
+              <details class="more">
+                <summary>{d.remove}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <p class="pb-2 text-cream-soft" set:html={s.windowsRemove} />
+              </details>
+            </>
+          ) : (
+            <>
+              <FileLink locale={locale} release={release} target="windows-x64" label={d.buttons.windows} primary />
+              <details class="more" open>
+                <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <ol class="steps">
+                  {s.windows.map((x) => <li set:html={x} />)}
+                  <li set:html={s.smartScreen} />
+                </ol>
+              </details>
+              <details class="more">
+                <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <p class="pb-2 text-cream-soft">{s.windowsUpdate}</p>
+              </details>
+            </>
+          )
+        }
         <details class="more" data-sums>
           <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <div class="check">
@@ -231,45 +285,99 @@ const sums = (targets: Target[]) =>
       {/* ---------- Linux ---------- */}
       <article id="linux" class="panel panel-linux" aria-labelledby="h-linux">
         <h3 id="h-linux" class="panel-title"><Icon name="terminal" size={24} />{d.devices.linux.name}</h3>
-        <FileLink locale={locale} release={release} target="linux-x64" label={d.buttons.linux} primary />
-        <details class="more" open>
-          <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
-          <ol class="steps">
-            <li>
-              {s.linuxDeps}
-              <table class="distros">
-                <tbody>
-                  {
-                    distros.map(([name, cmd]) => (
-                      <tr>
-                        <th scope="row">{name}</th>
-                        <td>
-                          <code dir="ltr">{cmd}</code>
-                        </td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-            </li>
-            <li>
-              {s.linuxRun}
-              <pre dir="ltr"><code>{linuxRun}</code></pre>
-            </li>
-            <li>
-              {s.linuxDesktop} <span set:html={s.linuxDesktopNote} />
-              <pre dir="ltr"><code>{linuxDesktop}</code></pre>
-            </li>
-          </ol>
-        </details>
-        <details class="more">
-          <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
-          <p class="pb-2 text-cream-soft">{s.linuxUpdate}</p>
-        </details>
+        {
+          linuxTar ? (
+            <>
+              <FileLink locale={locale} release={release} target="linux-x64-tar" label={d.buttons.linux} primary />
+              <details class="more" open>
+                <summary>{d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <ol class="steps">
+                  <li>
+                    {s.linuxDeps}
+                    <table class="distros">
+                      <tbody>
+                        {distros.map(([name, cmd]) => (
+                          <tr>
+                            <th scope="row">{name}</th>
+                            <td>
+                              <code dir="ltr">{cmd}</code>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </li>
+                  <li>
+                    {s.linuxRun}
+                    <pre dir="ltr"><code>{linuxRun}</code></pre>
+                  </li>
+                  <li>
+                    {s.linuxDesktop} <span set:html={s.linuxDesktopNote} />
+                    <pre dir="ltr"><code>{linuxDesktop}</code></pre>
+                  </li>
+                </ol>
+              </details>
+              <details class="more">
+                <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <p class="pb-2 text-cream-soft">{s.linuxUpdate}</p>
+              </details>
+            </>
+          ) : (
+            <>
+              {linuxScript ? (
+                <div class="text-cream-soft">
+                  <p set:html={s.linuxScriptLead} />
+                  <pre dir="ltr"><code>{linuxInstall}</code></pre>
+                  <p class="mt-3" set:html={s.linuxScriptAfter} />
+                </div>
+              ) : (
+                <FileLink locale={locale} release={release} target="linux-x64" label={d.buttons.linux} primary />
+              )}
+              <p class="mt-4 max-w-[60ch] text-caption text-dust">{s.linuxNeeds}</p>
+              <details class="more" open={!linuxScript}>
+                <summary>{linuxScript ? s.linuxAppImage : d.install}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                {linuxScript ? (
+                  <div class="mb-4">
+                    <FileLink locale={locale} release={release} target="linux-x64" label={d.buttons.appImage} />
+                  </div>
+                ) : null}
+                <ol class="steps">
+                  <li>
+                    {s.linuxChmod}
+                    <pre dir="ltr"><code>{linuxChmod}</code></pre>
+                  </li>
+                </ol>
+                <ul class="notes mt-4">{s.linuxAppImageNotes.map((x) => <li set:html={x} />)}</ul>
+              </details>
+              <details class="more">
+                <summary>{d.update}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <ul class="notes">
+                  {linuxScript ? <li>{s.linuxScriptUpdate}</li> : null}
+                  <li>{s.linuxAppImageUpdate}</li>
+                  {linuxScript ? <li set:html={s.linuxFromTar} /> : null}
+                </ul>
+              </details>
+              <details class="more">
+                <summary>{d.remove}<Icon name="chevronDown" size={20} class="chev" /></summary>
+                <div class="pb-2 text-cream-soft">
+                  {linuxScript ? (
+                    <>
+                      <p>{s.linuxScriptRemove}</p>
+                      <pre dir="ltr"><code>{linuxUninstall}</code></pre>
+                      <p class="mt-3 mb-3" set:html={s.linuxScriptRemoveNote} />
+                    </>
+                  ) : null}
+                  <p>{s.linuxAppImageRemove}</p>
+                </div>
+              </details>
+            </>
+          )
+        }
         <details class="more" data-sums>
           <summary>{d.check}<Icon name="chevronDown" size={20} class="chev" /></summary>
           <div class="check">
             <p>{d.checkNote}</p>
+            {linuxScript ? <p>{s.linuxScriptChecks}</p> : null}
             {
               sums(devices[3]!.targets).map((x) => (
                 <p class="sum">

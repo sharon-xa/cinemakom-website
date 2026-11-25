@@ -3,7 +3,7 @@
 // The site's download links come from the app's latest GitHub release, fetched
 // once per build. Nothing about a release (version, file name, size, link) is
 // ever hardcoded.
-import { TARGETS, targetOf, type Target } from './targets';
+import { TARGETS, targetOf as currentTarget, type Target } from './targets';
 import sampleJson from '../data/release.sample.json';
 import sampleSums from '../data/release.sample.SHA256SUMS.txt?raw';
 
@@ -14,6 +14,9 @@ export const API_LATEST = `https://api.github.com/repos/${REPO}/releases/latest`
 export const ALL_RELEASES_URL = `https://github.com/${REPO}/releases`;
 export const ISSUES_URL = `https://github.com/${REPO}/issues`;
 export const REPO_URL = `https://github.com/${REPO}`;
+/** The Linux install script, always the latest release's (so running it again updates). */
+export const INSTALL_SCRIPT = 'install.sh';
+export const INSTALL_SCRIPT_URL = `${REPO_URL}/releases/latest/download/${INSTALL_SCRIPT}`;
 
 /** Without these the site can't offer Android, so a CI build stops. */
 export const REQUIRED_TARGETS: readonly Target[] = [
@@ -31,6 +34,8 @@ export type Release = {
   pageUrl: string;
   allReleasesUrl: string;
   files: Partial<Record<Target, ReleaseFile>>;
+  /** The release has install.sh (from v2.0.0): Linux installs with one command. */
+  installScript: boolean;
   /** Where the data came from; 'sample' only happens in local builds. */
   source: 'github' | 'sample';
 };
@@ -40,6 +45,11 @@ export class ReleaseDataError extends Error {
 }
 
 const SUMS_NAME = 'SHA256SUMS.txt';
+
+/** targetOf, plus v1.0.0's Linux tarball (remove with the linux-x64-tar target). */
+export function targetOf(name: string): Target | undefined {
+  return currentTarget(name) ?? (name.endsWith('-linux-x64.tar.gz') ? 'linux-x64-tar' : undefined);
+}
 
 type ApiAsset = { name?: unknown; size?: unknown; browser_download_url?: unknown };
 
@@ -85,8 +95,13 @@ export function pickAssets(json: unknown, sums: Map<string, string> = new Map())
   if (!Array.isArray(assets)) throw new ReleaseDataError(`Release ${tag_name} has no assets list.`);
 
   const files: Release['files'] = {};
+  let installScript = false;
   for (const a of assets as ApiAsset[]) {
     if (!isRecord(a) || typeof a.name !== 'string') continue;
+    if (a.name === INSTALL_SCRIPT) {
+      installScript = typeof a.browser_download_url === 'string' && a.browser_download_url.startsWith('https://github.com/');
+      continue;
+    }
     const target = targetOf(a.name);
     if (!target) continue; // iOS, macOS, checksums, anything new: ignored.
     const url = a.browser_download_url;
@@ -104,6 +119,7 @@ export function pickAssets(json: unknown, sums: Map<string, string> = new Map())
     pageUrl: html_url,
     allReleasesUrl: ALL_RELEASES_URL,
     files,
+    installScript,
   };
 }
 
@@ -142,14 +158,41 @@ export function sampleRelease(): Release {
 }
 
 /**
+ * A made-up v2.0.0 with v2's files (installer, AppImage, install.sh; no
+ * tarball, no Apple files), to see and test the new install steps before
+ * v2.0.0 is published: RELEASE_SAMPLE=v2 npm run dev. Remove it with the
+ * linux-x64-tar target.
+ */
+export function sampleReleaseV2(): Release {
+  const json = JSON.parse(JSON.stringify(sampleJson).replaceAll('v1.0.0', 'v2.0.0')) as typeof sampleJson;
+  const dl = 'https://github.com/sharon-xa/cinemakom/releases/download/v2.0.0/';
+  const add = (name: string, size: number) => ({ ...json.assets[0]!, name, size, browser_download_url: dl + name });
+  json.assets = [
+    ...json.assets.filter((a) => a.name.includes('-android-') || a.name.endsWith('-windows-x64.zip')),
+    add('cinemakom-v2.0.0-windows-x64-setup.exe', 31_457_280),
+    add('cinemakom-v2.0.0-linux-x64.AppImage', 62_914_560),
+    add('cinemakom-v2.0.0-linux-x64.AppImage.zsync', 196_608),
+    add('cinemakom-v2.0.0-linux-x64-sources.tar', 104_857_600),
+    add('install.sh', 6_144),
+    add('SHA256SUMS.txt', 900),
+  ];
+  const sums = parseSums(sampleSums.replaceAll('v1.0.0', 'v2.0.0'));
+  sums.set('cinemakom-v2.0.0-windows-x64-setup.exe', 'e'.repeat(64));
+  sums.set('cinemakom-v2.0.0-linux-x64.AppImage', 'a'.repeat(64));
+  return { ...pickAssets(json, sums), source: 'sample' };
+}
+
+/**
  * Decides what a build uses (the failure rules of §5.1):
  * - CI: the live release, complete with Android files, or the build fails.
  * - Local: the live release; if that fails (offline, rate limit), the sample.
- * - RELEASE_SAMPLE=1 forces the sample (fast offline work).
+ * - RELEASE_SAMPLE=1 forces the sample (fast offline work); RELEASE_SAMPLE=v2
+ *   the made-up v2.0.0.
  */
 export async function loadRelease(env: NodeJS.ProcessEnv = process.env): Promise<Release> {
   const ci = Boolean(env.CI);
   if (env.RELEASE_SAMPLE === '1' && !ci) return sampleRelease();
+  if (env.RELEASE_SAMPLE === 'v2' && !ci) return sampleReleaseV2();
   let release: Release;
   try {
     release = await fetchLatestRelease(env);

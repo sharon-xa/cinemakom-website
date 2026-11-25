@@ -12,7 +12,7 @@ import { absolute, pageUrl, tvAddress, url, type Page } from './url';
 
 export const AUTHOR = { name: 'sharon-xa', url: 'https://github.com/sharon-xa' };
 
-export const OPERATING_SYSTEMS = 'Android 7.0+, Android TV, Google TV, Windows 10, Windows 11, Linux (x86-64)';
+export const OPERATING_SYSTEMS = 'Android 7.0+, Android TV, Google TV, Windows (64-bit), Linux (x86-64)';
 
 /** Our own strings with <em>, <a>… → plain text. */
 export function plain(html: string): string {
@@ -124,8 +124,8 @@ export function llmsTxt(release: Release): string {
   const devices: { name: string; note: string; targets: string[] }[] = [
     { ...en.download.devices.phone, targets: ['android-arm64-v8a', 'android-armeabi-v7a', 'android-x86_64'] },
     { ...en.download.devices.tv, targets: ['android-armeabi-v7a', 'android-arm64-v8a'] },
-    { ...en.download.devices.windows, targets: ['windows-x64'] },
-    { ...en.download.devices.linux, targets: ['linux-x64'] },
+    { ...en.download.devices.windows, targets: ['windows-x64-setup', 'windows-x64'] },
+    { ...en.download.devices.linux, targets: ['linux-x64', 'linux-x64-tar'] },
   ];
   const file = (target: string) => {
     const f = release.files[target as (typeof TARGETS)[number]];

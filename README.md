@@ -43,7 +43,7 @@
 | --- | --- |
 | هاتف أو جهاز لوحي أندرويد (7.0 أو أحدث) | ملف APK للهواتف |
 | Android TV أو Google TV أو TV Box | ملف التلفاز (الخيار 1، والخيار 2 إن ظهرت رسالة «لم يتم تثبيت التطبيق») |
-| ويندوز 10 أو 11، ‏64 بت | ملف zip |
+| ويندوز 64 بت (جُرّب على ويندوز 11) | ملف zip |
 | لينكس، ‏64 بت | ملف tar.gz (يحتاج libmpv) |
 
 ### قبل أن تحمّل
@@ -82,7 +82,7 @@ cinemakom.sharon-xa.com/tv
 | --- | --- |
 | Android phone or tablet (Android 7.0 or newer) | The phone APK |
 | Android TV, Google TV or TV box | The TV file (Option 1; Option 2 if it says *App not installed*) |
-| Windows 10 or 11, 64-bit | A zip |
+| 64-bit Windows (tested on Windows 11) | A zip |
 | Linux, 64-bit | A tar.gz (needs libmpv) |
 
 ### Before you download
@@ -139,7 +139,7 @@ npm run budgets    # fails if a page's CSS or JS outgrows its budget (after buil
 npm run preview    # serve dist/
 ```
 
-`npm run build` calls the GitHub API. Set `GITHUB_TOKEN` to raise the rate limit, or `RELEASE_SAMPLE=1` to use the saved release and work offline.
+`npm run build` calls the GitHub API. Set `GITHUB_TOKEN` to raise the rate limit, or `RELEASE_SAMPLE=1` to use the saved release and work offline. `RELEASE_SAMPLE=v2` builds with a made-up v2.0.0 (installer, AppImage, `install.sh`) to see its install steps before it is published.
 
 Check, test, `lint:rtl`, build and budgets must all pass before a change is merged (Render runs all five on every deploy).
 

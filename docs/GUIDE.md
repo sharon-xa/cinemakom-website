@@ -52,15 +52,23 @@ The owner's brief, in short:
   | `cinemakom-<tag>-android-arm64-v8a.apk` | Android phones and tablets (64-bit, nearly every phone since ~2017) |
   | `cinemakom-<tag>-android-armeabi-v7a.apk` | Android TVs, TV boxes and older 32-bit phones. Runs on most 64-bit devices too |
   | `cinemakom-<tag>-android-x86_64.apk` | Chromebooks and Android emulators |
-  | `cinemakom-<tag>-windows-x64.zip` | Windows 10/11, 64-bit. Unzip, run `cinemakom.exe` |
-  | `cinemakom-<tag>-linux-x64.tar.gz` | Linux x64. Contains `cinemakom/` (the app) and `cinemakom/packaging/` (a `.desktop` file and icons) |
+  | `cinemakom-<tag>-windows-x64-setup.exe` | *From v2.0.0.* The Windows installer (Inno Setup): per user, no admin rights, into `%LOCALAPPDATA%\Programs\Cinemakom`, Start menu entry (desktop shortcut if ticked), Installed apps entry. Installs over the last version, offering to close a running Cinemakom. English and Arabic screens. Uninstalling asks before removing the library and settings, never deletes downloaded videos |
+  | `cinemakom-<tag>-windows-x64.zip` | 64-bit Windows, tested on Windows 11 (never write "Windows 10": nobody has tested it). Portable: extract, run `cinemakom.exe` |
+  | `cinemakom-<tag>-linux-x64.AppImage` (+ `.zsync`) | *From v2.0.0.* 64-bit Linux from 2022 on (glibc 2.35+: Ubuntu 22.04+, Debian 12+, Fedora, Arch). Brings its own player (mpv/FFmpeg), nothing to install. `chmod +x` and run; static runtime (no libfuse2), needs FUSE itself, fallback `--appimage-extract-and-run`. Gear Lever, AppImageLauncher and AppImageUpdate update it via zsync |
+  | `install.sh` | *From v2.0.0.* `curl -fsSL https://github.com/sharon-xa/cinemakom/releases/latest/download/install.sh \| bash`: per user, no sudo, checks the AppImage against `SHA256SUMS.txt` and unpacks it into `~/.local/lib/cinemakom` (no FUSE), adds the menu entry and a `cinemakom` command. Run again to update; `bash -s -- --uninstall` removes it (library and downloads stay). 404 while the latest release has no `install.sh` |
+  | `cinemakom-<tag>-linux-x64-sources.tar` | *From v2.0.0.* Source of the bundled GPL libraries. Not a download for users: never show it |
+  | `cinemakom-<tag>-linux-x64.tar.gz` | *v1.0.0 only.* Contains `cinemakom/` (the app) and `cinemakom/packaging/` (a `.desktop` file and icons); needs libmpv |
   | `SHA256SUMS.txt` | Checksums of all of the above |
+
+  **The v2.0.0 switch.** v1.0.0 is still the latest release; v2.0.0 drops the tarball and adds the installer, the AppImage and `install.sh`. The site follows whichever release is latest: with v1.0.0 it shows the zip and tarball steps, and once a release has `-windows-x64-setup.exe`, `-linux-x64.AppImage` and `install.sh` it shows the new ones (the release's deploy hook rebuilds the site). **Once v2.0.0 is out, remove the tarball branch:** the `linux-x64-tar` target, its match in `release.ts`, the tarball panel in `Download.astro`, the `linuxDeps`/`linuxRun`/`linuxDesktop*`/`linuxUpdate`/`distros` strings, `sampleReleaseV2()`, and the libmpv note below. No Flatpak, Flathub, .deb, .rpm, AUR, Snap, winget, Microsoft Store or code signing is planned: never mention them as coming.
 
   The current release, **v1.0.0**, also carries old `ios-unsigned.ipa` and `macos.dmg` assets from before Apple was dropped. **Ignore every asset you don't recognise.** Match assets by their **suffix** (`-android-arm64-v8a.apk` etc.), never by the full name, because the tag is inside the name.
   Releases whose tag contains `-` (e.g. `v1.3.0-beta1`) are prereleases. GitHub's `releases/latest` endpoint already skips prereleases and drafts: use it, and show only that release.
 - **Android:** needs **Android 7.0 or newer** (minSdk 24). The owner's test TV (a TCL Google TV) runs 32-bit Android, which is why TVs get `armeabi-v7a`.
-- **Linux:** the app plays video through **libmpv**, which must be installed. *Checked on the distros' package sites, 2026-11-24:* Debian 12+, Ubuntu 24.04+ and Mint 22+ `sudo apt install libmpv2`; Debian 11, Ubuntu 22.04 and Mint 21 `sudo apt install libmpv1`; Fedora `sudo dnf install mpv-libs` (in Fedora's own repos now, no RPM Fusion needed); Arch `sudo pacman -S mpv`.
-- **Windows and Linux builds are unsigned**, so Windows shows SmartScreen ("Windows protected your PC" → *More info* → *Run anyway*).
+- **Linux (v1.0.0's tarball only):** the app plays video through **libmpv**, which must be installed. *Checked on the distros' package sites, 2026-11-24:* Debian 12+, Ubuntu 24.04+ and Mint 22+ `sudo apt install libmpv2`; Debian 11, Ubuntu 22.04 and Mint 21 `sudo apt install libmpv1`; Fedora `sudo dnf install mpv-libs` (in Fedora's own repos now, no RPM Fusion needed); Arch `sudo pacman -S mpv`.
+- **Windows and Linux builds are unsigned**, so Windows shows SmartScreen ("Windows protected your PC" → *More info* → *Run anyway*), for the installer and usually for the zip's `cinemakom.exe` too.
+- **Linux GPU decoding:** say "uses the GPU to decode video where it can (tested on NVIDIA)". Intel and AMD (VA-API) haven't been tested on real hardware.
+- **Upgrading from v1.0.0 (desktop):** the library moves by itself on first start (Linux checked; Windows not yet checked on a real machine, so say "should carry over" there). Linux tarball users delete `~/.local/opt/cinemakom`; `install.sh` writes the same `.desktop` and icon names, so the old menu entry is replaced. Windows zip users can delete the old folder.
 - **Earthlink:** browsing and streaming need an Earthlink connection. **Downloaded titles play offline, anywhere.**
 - **What the app does** (safe to claim):
   - Browse Cinemana's movies and series: a Home page with a hero carousel and rows, genres with sorting and language filters, series with seasons and episodes (long anime seasons split into blocks).
@@ -114,9 +122,9 @@ The owner's brief, in short:
     allReleasesUrl: string; // https://github.com/sharon-xa/cinemakom/releases
     files: Partial<Record<Target, { name: string; url: string; bytes: number; sha256?: string }>>;
   };
-  type Target = 'android-arm64-v8a' | 'android-armeabi-v7a' | 'android-x86_64' | 'windows-x64' | 'linux-x64';
+  type Target = 'android-arm64-v8a' | 'android-armeabi-v7a' | 'android-x86_64' | 'windows-x64-setup' | 'windows-x64' | 'linux-x64' | 'linux-x64-tar';
   ```
-  Match each target by suffix (`-android-arm64-v8a.apk`, `-android-armeabi-v7a.apk`, `-android-x86_64.apk`, `-windows-x64.zip`, `-linux-x64.tar.gz`). Use `browser_download_url` as the link. Skip anything else.
+  Match each target by suffix (`-android-arm64-v8a.apk`, `-android-armeabi-v7a.apk`, `-android-x86_64.apk`, `-windows-x64-setup.exe`, `-windows-x64.zip`, `-linux-x64.AppImage`, and v1.0.0's `-linux-x64.tar.gz` as `linux-x64-tar`, build only). `installScript` is true when the release has an asset named exactly `install.sh`. Use `browser_download_url` as the link. Skip anything else.
 - Also download `SHA256SUMS.txt` (when present) and fill in `sha256` per file.
 - **Failure rules:**
   - **In CI** (`process.env.CI`): if the API call fails, or the release lacks any **Android** file, the build **fails**. Render then keeps serving the last good deploy. (Render sets `CI=true` during builds.) Never deploy a site with missing or broken download links.
@@ -173,8 +181,8 @@ Four big option cards, in this order:
 |---|---|---|
 | **Android phone or tablet** | `arm64-v8a` | `armeabi-v7a` ("For older phones. Try it if the main file says *App not installed*"), `x86_64` ("Chromebooks and emulators") |
 | **Android TV, Google TV or TV box** | **Option 1:** `armeabi-v7a` ("Works on nearly every TV. Many TVs run 32-bit Android, even with a 64-bit chip") | **Option 2**, shown right under Option 1 (not hidden in "Other versions"): `arm64-v8a` ("Use this only if Option 1 says *App not installed*. Some newer TVs run 64-bit apps only") |
-| **Windows computer** | `windows-x64.zip` | — |
-| **Linux computer** | `linux-x64.tar.gz` | — |
+| **Windows computer** | `windows-x64-setup.exe` (v1.0.0: `windows-x64.zip`) | The portable `windows-x64.zip` |
+| **Linux computer** | The `install.sh` command (v1.0.0: `linux-x64.tar.gz`) | The `linux-x64.AppImage` |
 
 **TV options are labelled.** Both TV files are always visible as "Option 1" and "Option 2", each saying when to use it, so nobody has to know what 32-bit means. The install steps end with: "If you see *App not installed*, download Option 2 instead." (The owner chose this over a bigger universal APK, 2026-11-23.)
 
@@ -198,8 +206,10 @@ Build the picker from **radio inputs** (one `name`, real `<label>`s) and reveal 
     2. A USB stick: download the file on a computer, copy it over, open it with the TV's file manager.
     3. A file-sending app such as *Send Files to TV* on the phone and the TV.
     Then: allow the app that opens it to install unknown apps.
-  - **Windows:** unzip the whole folder somewhere permanent (keep its files together), open `cinemakom.exe`. SmartScreen: *More info* → *Run anyway*.
-  - **Linux:** install libmpv (the three commands from §3), extract, run `./cinemakom/cinemakom`. Optional: install the `.desktop` file and icons from `cinemakom/packaging/`. **Read `linux/packaging/` in the app repo and write exact commands that match it**; don't guess paths.
+  - **Windows (from v2.0.0):** open the installer, SmartScreen (*More info* → *Run anyway*), follow the setup. "Portable version (zip)", "Updating" and "Uninstalling" as their own `<details>`. The app repo's README ("Install") and `docs/PACKAGING.md` are the source of truth.
+  - **Windows (v1.0.0):** unzip the whole folder somewhere permanent (keep its files together), open `cinemakom.exe`. SmartScreen: *More info* → *Run anyway*.
+  - **Linux (from v2.0.0):** the `install.sh` one-liner first, then the requirements line, then "Or use the AppImage" (`chmod +x`, run; the FUSE fallback; AppImage managers). "Updating" (run the command again; moving from the tarball) and "Uninstalling" (`--uninstall`).
+  - **Linux (v1.0.0):** install libmpv (the three commands from §3), extract, run `./cinemakom/cinemakom`. Optional: install the `.desktop` file and icons from `cinemakom/packaging/`. **Read `linux/packaging/` in the app repo and write exact commands that match it**; don't guess paths.
 - "Check the file" as a small `<details>`: the SHA-256 for the cautious.
 - On wide screens only, the phone panel shows a **QR code** (generated at build time as inline SVG with `qrcode`) pointing to the site's `#android` section, so someone on a computer can scan it with their phone.
 
