@@ -56,11 +56,11 @@ The owner's brief, in short:
   | `cinemakom-<tag>-windows-x64.zip` | 64-bit Windows, tested on Windows 11 (never write "Windows 10": nobody has tested it). Portable: extract, run `cinemakom.exe` |
   | `cinemakom-<tag>-linux-x64.AppImage` (+ `.zsync`) | *From v2.0.0.* 64-bit Linux from 2022 on (glibc 2.35+: Ubuntu 22.04+, Debian 12+, Fedora, Arch). Brings its own player (mpv/FFmpeg), nothing to install. `chmod +x` and run; static runtime (no libfuse2), needs FUSE itself, fallback `--appimage-extract-and-run`. Gear Lever, AppImageLauncher and AppImageUpdate update it via zsync |
   | `install.sh` | *From v2.0.0.* `curl -fsSL https://github.com/sharon-xa/cinemakom/releases/latest/download/install.sh \| bash`: per user, no sudo, checks the AppImage against `SHA256SUMS.txt` and unpacks it into `~/.local/lib/cinemakom` (no FUSE), adds the menu entry and a `cinemakom` command. Run again to update; `bash -s -- --uninstall` removes it (library and downloads stay). 404 while the latest release has no `install.sh` |
-  | `cinemakom-<tag>-linux-x64-sources.tar` | *From v2.0.0.* Source of the bundled GPL libraries. Not a download for users: never show it |
+  | `cinemakom-<tag>-linux-x64-sources.tar`, `cinemakom-<tag>-windows-x64-sources.tar.zst` | *From v2.0.0.* Source of the bundled GPL libraries (Linux; Windows' libmpv). Not a download for users: never show it |
   | `cinemakom-<tag>-linux-x64.tar.gz` | *v1.0.0 only.* Contains `cinemakom/` (the app) and `cinemakom/packaging/` (a `.desktop` file and icons); needs libmpv |
   | `SHA256SUMS.txt` | Checksums of all of the above |
 
-  **The v2.0.0 switch.** v1.0.0 is still the latest release; v2.0.0 drops the tarball and adds the installer, the AppImage and `install.sh`. The site follows whichever release is latest: with v1.0.0 it shows the zip and tarball steps, and once a release has `-windows-x64-setup.exe`, `-linux-x64.AppImage` and `install.sh` it shows the new ones. The site picks this up on its next build: the app release workflow's deploy-hook step (Appendix B; not added as of 2026-11-25), or else the 6-hourly release check (§5.2). **Once v2.0.0 is out, remove the tarball branch:** the `linux-x64-tar` target, its match in `release.ts`, the tarball panel in `Download.astro`, the `linuxDeps`/`linuxRun`/`linuxDesktop*`/`linuxUpdate`/`distros` strings, `sampleReleaseV2()`, and the libmpv note below. No Flatpak, Flathub, .deb, .rpm, AUR, Snap, winget, Microsoft Store or code signing is planned: never mention them as coming.
+  **The v2.0.0 switch.** v1.0.0 is still the latest release; v2.0.0 drops the tarball and adds the installer, the AppImage and `install.sh`. The site follows whichever release is latest: with v1.0.0 it shows the zip and tarball steps, and once a release has `-windows-x64-setup.exe`, `-linux-x64.AppImage` and `install.sh` it shows the new ones. The site picks this up on its next build: the app release workflow's deploy-hook step (Appendix B, in the app repo since 2026-11-25), or else the 6-hourly release check (§5.2). **Once v2.0.0 is out, remove the tarball branch:** the `linux-x64-tar` target, its match in `release.ts`, the tarball panel in `Download.astro`, the `linuxDeps`/`linuxRun`/`linuxDesktop*`/`linuxUpdate`/`distros` strings, `sampleReleaseV2()`, and the libmpv note below. No Flatpak, Flathub, .deb, .rpm, AUR, Snap, winget, Microsoft Store or code signing is planned: never mention them as coming.
 
   The current release, **v1.0.0**, also carries old `ios-unsigned.ipa` and `macos.dmg` assets from before Apple was dropped. **Ignore every asset you don't recognise.** Match assets by their **suffix** (`-android-arm64-v8a.apk` etc.), never by the full name, because the tag is inside the name.
   Releases whose tag contains `-` (e.g. `v1.3.0-beta1`) are prereleases. GitHub's `releases/latest` endpoint already skips prereleases and drafts: use it, and show only that release.
@@ -452,7 +452,7 @@ Also copy this guide into the repo as `docs/GUIDE.md`, so the brief stays with t
 
 ---
 
-## Appendix B: the step for the app's `release.yml` (owner adds it)
+## Appendix B: the step for the app's `release.yml` (added 2026-11-25)
 
 Append to the end of the `publish` job's `steps` in `~/Projects/personal/cinemakom/.github/workflows/release.yml`, after `softprops/action-gh-release`:
 

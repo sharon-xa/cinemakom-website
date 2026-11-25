@@ -32,6 +32,7 @@ describe('targetOf', () => {
     expect(targetOf('cinemakom-v1.0.0-android-arm64-v8a.apk.sig')).toBeUndefined();
     expect(targetOf('cinemakom-v2.0.0-linux-x64.AppImage.zsync')).toBeUndefined();
     expect(targetOf('cinemakom-v2.0.0-linux-x64-sources.tar')).toBeUndefined();
+    expect(targetOf('cinemakom-v2.0.0-windows-x64-sources.tar.zst')).toBeUndefined();
     expect(targetOf('cinemakom-v2.0.0-windows-x64.exe')).toBeUndefined();
     expect(targetOf('install.sh')).toBeUndefined();
   });
