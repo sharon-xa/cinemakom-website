@@ -240,7 +240,6 @@ const sums = (targets: Target[]) =>
                 <ul class="notes">
                   <li set:html={s.windowsSetupUpdate} />
                   <li><strong>{s.windowsPortable}:</strong> {s.windowsUpdate}</li>
-                  <li set:html={s.windowsFromV1} />
                 </ul>
               </details>
               <details class="more">
@@ -355,7 +354,6 @@ const sums = (targets: Target[]) =>
                 <ul class="notes">
                   {linuxScript ? <li>{s.linuxScriptUpdate}</li> : null}
                   <li>{s.linuxAppImageUpdate}</li>
-                  {linuxScript ? <li set:html={s.linuxFromTar} /> : null}
                 </ul>
               </details>
               <details class="more">

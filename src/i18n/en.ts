@@ -199,7 +199,6 @@ const en = {
       ],
       androidUpdate: [
         'Download the new version here and install it over the old one. Your favorites, history and downloads stay.',
-        '<strong>Only if you have version 1.0.0:</strong> uninstall it once before installing a newer version. Version 1.0.0 was signed with a temporary key and every later version uses the permanent one, so Android won’t install over it. Uninstalling clears its favorites and history.',
       ],
       tvWays: 'Three ways to get the file onto the TV:',
       tv: [
@@ -225,8 +224,6 @@ const en = {
       windowsPortableWhy: 'Nothing to install: extract it and run it from its folder.',
       windowsSetupUpdate:
         'Download the new installer here and open it: it installs over the old version. If Cinemakom is open, the installer offers to close it: keep that choice and continue. Your favorites, history and downloads stay.',
-      windowsFromV1:
-        '<strong>Coming from version 1.0.0?</strong> Install the new version, then delete the old zip folder. Your favorites and history should carry over: they’re stored outside that folder.', // html
       windowsRemove:
         'Open <em>Settings</em> → <em>Apps</em> → <em>Installed apps</em> and uninstall Cinemakom. It asks before deleting your library and settings, and never deletes the videos you downloaded. The portable version: delete its folder.', // html
       windowsUpdate:
@@ -251,8 +248,6 @@ const en = {
         'Close Cinemakom, then run the same command again: it replaces the old version with the new one. Your favorites, history and downloads stay.',
       linuxAppImageUpdate:
         'With the AppImage: let your AppImage manager update it, or download the new one here and make it executable.',
-      linuxFromTar:
-        '<strong>Coming from version 1.0.0 (the tar.gz)?</strong> Install with the command, then delete the old copy: <code dir="ltr">rm -rf ~/.local/opt/cinemakom</code>. The new menu entry replaces the old one, and your favorites, history and downloads carry over.', // html
       linuxScriptRemove: 'Run:',
       linuxScriptRemoveNote:
         'It removes the app, its menu entry and the <code dir="ltr">cinemakom</code> command. Your library and downloads stay.', // html
@@ -297,7 +292,7 @@ const en = {
       },
       {
         q: 'How do I update?',
-        a: 'Download the new version from this page and install it over the old one. Your favorites, history and downloads stay. On Android, if you have version 1.0.0, uninstall it once first (it was signed with a temporary key). This page always offers the newest version.',
+        a: 'Download the new version from this page and install it over the old one. Your favorites, history and downloads stay. This page always offers the newest version.',
       },
       {
         q: 'Where do I report a problem?',
