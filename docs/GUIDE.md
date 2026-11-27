@@ -68,7 +68,7 @@ The owner's brief, in short:
 - **Linux (v1.0.0's tarball only):** the app plays video through **libmpv**, which must be installed. *Checked on the distros' package sites, 2026-11-24:* Debian 12+, Ubuntu 24.04+ and Mint 22+ `sudo apt install libmpv2`; Debian 11, Ubuntu 22.04 and Mint 21 `sudo apt install libmpv1`; Fedora `sudo dnf install mpv-libs` (in Fedora's own repos now, no RPM Fusion needed); Arch `sudo pacman -S mpv`.
 - **Windows and Linux builds are unsigned**, so Windows shows SmartScreen ("Windows protected your PC" → *More info* → *Run anyway*), for the installer and usually for the zip's `cinemakom.exe` too.
 - **Linux GPU decoding:** say "uses the GPU to decode video where it can (tested on NVIDIA)". Intel and AMD (VA-API) haven't been tested on real hardware.
-- **Upgrading from v1.0.0 (desktop):** the library moves by itself on first start (Linux checked; Windows not yet checked on a real machine, so say "should carry over" there). Linux tarball users delete `~/.local/opt/cinemakom`; `install.sh` writes the same `.desktop` and icon names, so the old menu entry is replaced. Windows zip users can delete the old folder.
+- **Upgrading from v1.0.0:** the site says nothing about it (the owner removed those notes on 2026-11-27). Don't add v1.0.0 upgrade or uninstall warnings back, on any platform or in the FAQ.
 - **Earthlink:** browsing and streaming need an Earthlink connection. **Downloaded titles play offline, anywhere.**
 - **What the app does** (safe to claim):
   - Browse Cinemana's movies and series: a Home page with a hero carousel and rows, genres with sorting and language filters, series with seasons and episodes (long anime seasons split into blocks).
@@ -200,7 +200,7 @@ Build the picker from **radio inputs** (one `name`, real `<label>`s) and reveal 
 - The **primary button** (`bulb` pill) for the recommended file, with version and size.
 - "Other versions" as a `<details>` with the alternatives, each with its one-line reason.
 - "How to install" as a `<details>` with short numbered steps:
-  - **Android:** open the downloaded file; if asked, allow your browser to "Install unknown apps"; if Play Protect warns, choose *Install anyway* (it warns about any app that isn't from the Play Store). **Updating:** download the new version and install it over the old one; favorites, history and downloads stay. *One exception:* anyone who has **v1.0.0** must uninstall it once before installing a newer version (v1.0.0 was signed with a temporary key; every release after it uses the permanent one). Say this in the update steps and in the FAQ while v1.0.0 users may still be around.
+  - **Android:** open the downloaded file; if asked, allow your browser to "Install unknown apps"; if Play Protect warns, choose *Install anyway* (it warns about any app that isn't from the Play Store). **Updating:** download the new version and install it over the old one; favorites, history and downloads stay.
   - **Android TV:** the panel shows the short TV address in large type (`cinemakom.sharon-xa.com/tv`) and three ways in:
     1. *Downloader* app (by AFTVnews, free on the TV's Play Store): type the address, then pick the TV file on the page that opens.
     2. A USB stick: download the file on a computer, copy it over, open it with the TV's file manager.
@@ -208,7 +208,7 @@ Build the picker from **radio inputs** (one `name`, real `<label>`s) and reveal 
     Then: allow the app that opens it to install unknown apps.
   - **Windows (from v2.0.0):** open the installer, SmartScreen (*More info* → *Run anyway*), follow the setup. "Portable version (zip)", "Updating" and "Uninstalling" as their own `<details>`. The app repo's README ("Install") and `docs/PACKAGING.md` are the source of truth.
   - **Windows (v1.0.0):** unzip the whole folder somewhere permanent (keep its files together), open `cinemakom.exe`. SmartScreen: *More info* → *Run anyway*.
-  - **Linux (from v2.0.0):** the `install.sh` one-liner first, then the requirements line, then "Or use the AppImage" (`chmod +x`, run; the FUSE fallback; AppImage managers). "Updating" (run the command again; moving from the tarball) and "Uninstalling" (`--uninstall`).
+  - **Linux (from v2.0.0):** the `install.sh` one-liner first, then the requirements line, then "Or use the AppImage" (`chmod +x`, run; the FUSE fallback; AppImage managers). "Updating" (run the command again) and "Uninstalling" (`--uninstall`). Commands people paste into a terminal (the install and uninstall one-liners) go in `Command.astro`: the command box with an icon copy button, which stays hidden unless the browser can copy.
   - **Linux (v1.0.0):** install libmpv (the three commands from §3), extract, run `./cinemakom/cinemakom`. Optional: install the `.desktop` file and icons from `cinemakom/packaging/`. **Read `linux/packaging/` in the app repo and write exact commands that match it**; don't guess paths.
 - "Check the file" as a small `<details>`: the SHA-256 for the cautious.
 - On wide screens only, the phone panel shows a **QR code** (generated at build time as inline SVG with `qrcode`) pointing to the site's `#android` section, so someone on a computer can scan it with their phone.
@@ -431,6 +431,7 @@ All of check, test, lint:rtl and build must pass before you finish.
 - Never say or imply the site or app is official, or affiliated with Earthlink, Shabakaty or Cinemana. No logos or branding of theirs.
 - No Apple downloads or promises (iOS, macOS, tvOS are not supported).
 - No ratings, scores, likes or "top rated" anything (the app has none).
+- No v1.0.0 upgrade or uninstall warnings (removed by the owner on 2026-11-27).
 - No analytics, trackers, cookies, cookie banners, font CDNs or third-party embeds. The only third-party request at runtime is the optional GitHub API refresh.
 - Never call Shabakaty or Cinemana hosts from the site.
 - Don't host release files in this repo.
@@ -465,4 +466,4 @@ Append to the end of the `publish` job's `steps` in `~/Projects/personal/cinemak
         run: curl -fsS -X POST "$HOOK" > /dev/null
 ```
 
-**Android updates (fixed 2026-11-23):** from the next release on, every APK is signed with the same permanent key, so updates install over the old version and keep the user's data. Only v1.0.0 was signed with a temporary key, so its users uninstall once (§6.4).
+**Android updates (fixed 2026-11-23):** from the next release on, every APK is signed with the same permanent key, so updates install over the old version and keep the user's data. Only v1.0.0 was signed with a temporary key; the site doesn't mention it (§3).

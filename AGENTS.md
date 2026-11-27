@@ -41,6 +41,7 @@ All of check, test, lint:rtl, build and budgets must pass before you finish.
 - Never say or imply the site or app is official, or affiliated with Earthlink, Shabakaty or Cinemana. No logos or branding of theirs.
 - No Apple downloads or promises (iOS, macOS, tvOS are not supported).
 - No ratings, scores, likes or "top rated" anything (the app has none).
+- No v1.0.0 upgrade or uninstall warnings (removed by the owner on 2026-11-27).
 - No analytics, trackers, cookies, cookie banners, font CDNs or third-party embeds. The only third-party request at runtime is the optional GitHub API refresh.
 - Never call Shabakaty or Cinemana hosts from the site.
 - Don't host release files in this repo.
