@@ -87,7 +87,7 @@ The owner's brief, in short:
 
 - **Astro, latest stable**, `output: 'static'`. Create with `npm create astro@latest` (minimal template, TypeScript strict). Node is v26 on this machine, npm 12. Pin the Node version in `.nvmrc` so CI matches.
 - **Tailwind v4** through its Vite plugin (`npx astro add tailwind`). Configuration lives in CSS (`@theme`), not in a JS config file.
-- **Zero client frameworks.** The only client JavaScript is the release refresh script (§5.4), under **2 KB minified**, inlined. The download picker works **without JavaScript** (§6.3).
+- **Zero client frameworks.** The only client JavaScript is the release refresh script (§5.4) and the copy buttons on the Linux commands, under **2.5 KB minified** together, inlined. The download picker works **without JavaScript** (§6.3).
 - **Images:** `astro:assets` (`<Picture>`) to produce AVIF and WebP at a few widths, with `width`/`height` set so nothing shifts. Only the hero image loads eagerly (`fetchpriority="high"`); everything else is `loading="lazy"`.
 - **Fonts:** self-hosted WOFF2, subset (§8.2). **No Google Fonts or any font CDN.**
 - **Allowed small dev tools:** `vitest` (tests), `@astrojs/check` + `typescript` (type checks), `qrcode` (build-time SVG QR codes, §6.4), `@astrojs/sitemap`. Ask before adding anything else.
@@ -98,7 +98,7 @@ The owner's brief, in short:
 |---|---|
 | Home page, first view on a phone (HTML + CSS + JS + fonts + images), compressed | **≤ 350 KB** |
 | CSS | ≤ 20 KB compressed |
-| JavaScript | ≤ 2 KB, inline |
+| JavaScript | ≤ 2.5 KB, inline |
 | Lighthouse (mobile, both languages) | Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100 |
 | Layout shift | 0 |
 
@@ -154,7 +154,7 @@ Release assets have the version in their names, so a link like `releases/latest/
 
 ### 5.4 Runtime refresh (small safety net)
 
-An inline script (≤ 2 KB) on download sections only:
+An inline script (about 2 KB) on download sections only:
 1. Fetches `https://api.github.com/repos/sharon-xa/cinemakom/releases/latest` (CORS is allowed), with a 4-second timeout, at most once per browser session (cache the answer in `sessionStorage`).
 2. If `tag_name` differs from the baked tag, updates every element marked `data-target="android-arm64-v8a"` etc. (its `href`, size and filename) and every `data-version` text, using the same suffix matching as `pickAssets`. Put that matching in one small shared module and test it.
 3. **Any failure does nothing.** Iraqi ISPs put many users behind one shared IP, so GitHub's limit of 60 anonymous requests per hour per IP will often run out. The baked links must always be complete and correct without this script.
@@ -416,11 +416,11 @@ All of check, test, lint:rtl and build must pass before you finish.
 ## Rules
 - **Release data comes from the GitHub API at build time** (`src/lib/release.ts`). Never hardcode a version, file name, size or link. Match assets by suffix. In CI a failed fetch or a missing Android file fails the build.
 - **No device auto-detection.** The visitor picks the device; never reorder, preselect by user agent, or hide files.
-- **The download picker works without JavaScript** (radio inputs + `:has()`, all panels shown when `:has()` is unsupported). The only client JS is the inline release refresh (≤ 2 KB), and the site must be fully correct without it.
+- **The download picker works without JavaScript** (radio inputs + `:has()`, all panels shown when `:has()` is unsupported). The only client JS is the inline release refresh and the Linux commands' copy buttons (≤ 2.5 KB together), and the site must be fully correct without it.
 - **Design:** the app's Marquee system (`docs/GUIDE.md` §8, from the app's `docs/DESIGN.md`). Only the `@theme` tokens: no Tailwind default colours, no hardcoded colours, fonts or radii in markup. One dark theme. No shadows, blur or decorative gradients. `bulb` is scarce. Nothing loops; respect `prefers-reduced-motion`.
 - **Two languages:** Arabic at `/` (RTL), English at `/en/`. Every string in `src/i18n/ar.ts` and `src/i18n/en.ts` (same keys). Logical properties only (`ms/me/ps/pe/start/end`); never left/right. No letter-spacing or uppercase on Arabic. Western digits everywhere. Mixed-direction snippets in `<bdi>`.
 - **Links:** every internal URL through the `url()` helper (`import.meta.env.BASE_URL`).
-- **Performance budgets:** home first view ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2 KB, CLS 0, Lighthouse mobile ≥ 95 / 100 / 100 / 100. Self-hosted subset WOFF2 fonts; images through `astro:assets`.
+- **Performance budgets:** home first view ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2.5 KB, CLS 0, Lighthouse mobile ≥ 95 / 100 / 100 / 100. Self-hosted subset WOFF2 fonts; images through `astro:assets`.
 - **The logo** is the app's SVGs from `branding/`, inlined. Never redraw or alter it.
 - **Phones first:** most visitors are on Android phones. Check every change at 320, 360 and 412 px in both languages (`scripts/phone-audit.mjs`: no sideways scroll, tap targets ≥ 44 px, text ≥ 13 px). The site must work in Chrome 111+ (Android 7 stops at Chrome 119): no `:dir()` (use `[dir='rtl']`), write `-webkit-mask`/`-webkit-mask-composite` before `mask`, and treat `text-wrap` and similar as extras.
 - **Search and AI assistants:** every indexed page has its own title and description per language (search terms first: Cinemana / سينمانا, Android TV, Windows…), canonical, `hreflang`, Open Graph and JSON-LD from `src/lib/seo.ts`; the home page adds the FAQ. `/robots.txt` allows all crawlers, AI ones included; `/llms.txt` summarises the site in both languages from the dictionaries and release. Structured data never has ratings or reviews and never names Cinemana, Shabakaty or Earthlink as the brand or publisher. Real text in the HTML (no text in images, no content that needs JS).

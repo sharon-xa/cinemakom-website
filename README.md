@@ -120,7 +120,7 @@ In CI (Render sets `CI=true`), a failed fetch or a release with no Android files
 - **Works without JavaScript.** The device picker is radio inputs and `:has()`; browsers without `:has()` see every panel. Every download is a plain link to the file on GitHub, with its size.
 - **A page for TVs.** `/tv/` (and `/en/tv/`) is the short address people type on a remote: one huge focused button, big text, everything reachable with the arrow keys. It stays at that address for good.
 - **Found by search engines and AI assistants.** Titles and descriptions per language, `hreflang`, a sitemap, structured data (`src/lib/seo.ts`), a `robots.txt` that welcomes every crawler and an `/llms.txt` summary, all built from the same dictionaries and release data.
-- **Private and light.** No analytics, cookies, font CDNs or third-party embeds. Fonts are self-hosted WOFF2 subsets. Budgets: home page ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2 KB, CLS 0.
+- **Private and light.** No analytics, cookies, font CDNs or third-party embeds. Fonts are self-hosted WOFF2 subsets. Budgets: home page ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2.5 KB, CLS 0.
 - **The app's Marquee design**: one dark theme with a single gold accent, the app's own logo SVGs and typefaces.
 - **Right to left done properly.** Logical properties only (`ms`, `pe`, `start`, `end`), enforced by `npm run lint:rtl`. No uppercase or letter-spacing on Arabic. Western digits everywhere.
 

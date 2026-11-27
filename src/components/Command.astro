@@ -1,0 +1,106 @@
+---
+// A command to paste into a terminal, with a Copy button. The button starts
+// hidden and the script below shows it only where the browser can copy, so
+// without JavaScript the box is just the command (still selectable).
+import Icon from './Icon.astro';
+import { dict, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  text: string;
+}
+const { locale, text } = Astro.props;
+const d = dict(locale).download;
+---
+
+<div class="cmd">
+  <pre dir="ltr"><code>{text}</code></pre>
+  <button type="button" class="copy" data-copy={text} title={d.copy} aria-live="polite" hidden>
+    <span class="idle"><Icon name="copy" size={20} /><span class="sr-only">{d.copy}</span></span>
+    <span class="done"><Icon name="check" size={20} /><span class="sr-only">{d.copied}</span></span>
+  </button>
+</div>
+
+<script>
+  if (navigator.clipboard)
+    for (const b of document.querySelectorAll<HTMLElement>('[data-copy]')) {
+      b.hidden = false;
+      b.onclick = () =>
+        navigator.clipboard.writeText(b.dataset.copy!).then(
+          () => {
+            b.dataset.done = '';
+            setTimeout(() => delete b.dataset.done, 2e3);
+          },
+          () => {},
+        );
+    }
+</script>
+
+<style>
+  .cmd {
+    display: flex;
+    align-items: center;
+    margin-block: 0.75rem 0.25rem;
+    padding-inline-end: 0.375rem;
+    border: 1px solid var(--color-velvet);
+    border-radius: var(--radius-card);
+    background: var(--color-night);
+  }
+  pre {
+    flex: 1;
+    min-inline-size: 0;
+    padding: 0.875rem 1rem;
+    overflow-x: auto;
+    color: var(--color-cream);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    text-align: start;
+    direction: ltr;
+    /* Extras: a quiet scrollbar where the browser can style it. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-velvet-strong) transparent;
+  }
+  .cmd code {
+    padding: 0;
+    background: none;
+    font-size: inherit;
+  }
+  /* A square icon button at the end of the box, as on code blocks elsewhere. */
+  .copy {
+    flex: none;
+    display: grid;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border-radius: var(--radius-thumb);
+    color: var(--color-dust);
+    cursor: pointer;
+    transition:
+      background-color 150ms var(--ease-out),
+      color 150ms var(--ease-out);
+  }
+  .copy:hover,
+  .copy:active {
+    background: var(--color-booth-raised);
+    color: var(--color-cream);
+  }
+  .copy[data-done] {
+    color: var(--color-cream);
+  }
+  .copy[hidden] {
+    display: none;
+  }
+  /* Both icons share one cell; the one not in use is hidden. */
+  .idle,
+  .done {
+    grid-area: 1 / 1;
+    display: flex;
+  }
+  .done,
+  .copy[data-done] .idle {
+    visibility: hidden;
+  }
+  .copy[data-done] .done {
+    visibility: visible;
+  }
+</style>

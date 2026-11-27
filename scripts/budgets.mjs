@@ -9,7 +9,7 @@ import { brotliCompressSync, gzipSync } from 'node:zlib';
 
 const LIMITS = {
   css: 20 * 1024, // compressed, per page (all of it is inline)
-  js: 2 * 1024, // uncompressed: the inline release refresh is the only script
+  js: 2.5 * 1024, // uncompressed: the inline release refresh and the copy buttons
   html: 60 * 1024, // compressed, the whole page with its inline CSS and JS
 };
 

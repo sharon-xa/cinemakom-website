@@ -15,7 +15,7 @@ npm run check      # astro check (types)
 npm test           # vitest
 npm run lint:rtl   # fails on physical left/right classes
 npm run build      # static site in dist/ (fetches the latest release; GITHUB_TOKEN raises the rate limit)
-npm run budgets    # CSS ≤ 20 KB, JS ≤ 2 KB per page (after build)
+npm run budgets    # CSS ≤ 20 KB, JS ≤ 2.5 KB per page (after build)
 npm run preview    # serve dist/
 scripts/fonts.sh   # rebuild the WOFF2 subsets from fonts-src/
 scripts/placeholders.sh  # rebuild the screenshots' loading previews
@@ -25,11 +25,11 @@ All of check, test, lint:rtl, build and budgets must pass before you finish.
 ## Rules
 - **Release data comes from the GitHub API at build time** (`src/lib/release.ts`). Never hardcode a version, file name, size or link. Match assets by suffix. In CI a failed fetch or a missing Android file fails the build.
 - **No device auto-detection.** The visitor picks the device; never reorder, preselect by user agent, or hide files.
-- **The download picker works without JavaScript** (radio inputs + `:has()`, all panels shown when `:has()` is unsupported). The only client JS is the inline release refresh (≤ 2 KB), and the site must be fully correct without it.
+- **The download picker works without JavaScript** (radio inputs + `:has()`, all panels shown when `:has()` is unsupported). The only client JS is the inline release refresh and the Linux commands' copy buttons (≤ 2.5 KB together), and the site must be fully correct without it.
 - **Design:** the app's Marquee system (`docs/GUIDE.md` §8, from the app's `docs/DESIGN.md`). Only the `@theme` tokens: no Tailwind default colours, no hardcoded colours, fonts or radii in markup. One dark theme. No shadows, blur or decorative gradients. `bulb` is scarce. Nothing loops; respect `prefers-reduced-motion`.
 - **Two languages:** Arabic at `/` (RTL), English at `/en/`. Every string in `src/i18n/ar.ts` and `src/i18n/en.ts` (same keys). Logical properties only (`ms/me/ps/pe/start/end`); never left/right. No letter-spacing or uppercase on Arabic. Western digits everywhere. Mixed-direction snippets in `<bdi>`.
 - **Links:** every internal URL through the `url()` helper (`import.meta.env.BASE_URL`).
-- **Performance budgets:** home first view ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2 KB, CLS 0, Lighthouse mobile ≥ 95 / 100 / 100 / 100. Self-hosted subset WOFF2 fonts; images through `astro:assets`.
+- **Performance budgets:** home first view ≤ 350 KB compressed, CSS ≤ 20 KB, JS ≤ 2.5 KB, CLS 0, Lighthouse mobile ≥ 95 / 100 / 100 / 100. Self-hosted subset WOFF2 fonts; images through `astro:assets`.
 - **The logo** is the app's SVGs from `branding/`, inlined. Never redraw or alter it.
 - **Screenshots:** after adding or changing one in `src/assets/screens/`, run `scripts/placeholders.sh` (its tiny preview shows while the real image loads; a test fails if one is missing). Give every screenshot `<img>` `style={placeholder(name)}` and the `lqip` class.
 - **Phones first:** most visitors are on Android phones. Check every change at 320, 360 and 412 px in both languages (`scripts/phone-audit.mjs`: no sideways scroll, tap targets ≥ 44 px, text ≥ 13 px). The site must work in Chrome 111+ (Android 7 stops at Chrome 119): no `:dir()` (use `[dir='rtl']`), write `-webkit-mask`/`-webkit-mask-composite` before `mask`, and treat `text-wrap` and similar as extras.

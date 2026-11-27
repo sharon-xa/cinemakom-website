@@ -178,6 +178,8 @@ const en = {
     install: 'How to install',
     update: 'Updating',
     remove: 'Uninstalling',
+    copy: 'Copy',
+    copied: 'Copied',
     check: 'Check the file',
     checkNote:
       'If you want to be sure the file arrived whole, compare its SHA-256 checksum with this one.',
